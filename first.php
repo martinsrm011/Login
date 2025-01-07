@@ -1,345 +1,792 @@
+<?php
 
-<?php 
-if(!isset($_SESSION)) {	session_start(); }
-// include('bar/BarcodeGenerator.php');
-// include('bar/BarcodeGeneratorPNG.php');
-// include('bar/BarcodeGeneratorSVG.php');
-// include('bar/BarcodeGeneratorHTML.php');
-
+include('logout.php');
 $pid = $_REQUEST['pid'];
-include('DbConnection/dbConnect.php');
-$user=$_REQUEST['user_name'];
-	// $generatorPNG = new Picqer\Barcode\BarcodeGeneratorPNG();
-	// $generatorSVG = new Picqer\Barcode\BarcodeGeneratorSVG();
-	// $generatorHTML = new Picqer\Barcode\BarcodeGeneratorHTML();
-	
-	
+$ismobile = 0;
+if($user == 'admin') {
+    $ismobile = 0;
+    $container = $_SERVER['HTTP_USER_AGENT'];
+    $useragents = array('Blazer' ,'Palm' ,'Handspring' ,'Nokia' ,'Kyocera','Samsung' ,'Motorola' ,'Smartphone','Windows CE' ,'Blackberry' ,'WAP' ,'SonyEricsson','PlayStation Portable','LG','MMP','OPWV','Symbian','EPOC','Android'
+    );
+
+    foreach ($useragents as $useragents) {
+        if(strstr($container, $useragents)) {
+            $ismobile = 1;
+        }
+    }
+    if ($ismobile == 1) {
+    }
+}
 ?>
-<html>
-<style>
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html lang="en" class="no-js">
+<!--<![endif]-->
 
-p{
-	font-size:19px;
-}
-.doc_st{
-	line-height:1.3em;
-	text-align:justify;
-}
+<head>
+    <title>Radiant Cash Management Services - Universe 1.0 (Beta Version)</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-  
-@media print{
-    body{
-        counter-reset: pageNumber;	
-	}
-	#foot4{
-   width:100%;
-   position:static;
-   margin-top:480px;
-	}
-	#foot3{
-   width:100%;
-   position:static;
-   margin-top:00px;
-	}
-    .pager{
-        min-height: 400px;		
-    }
-    .page-breaker{
-        page-break-after: always;
-        text-align: right;	
-    }
-    .page-breaker:before{
-		 counter-increment: pageNumber;
-        content: "Page:" counter(pageNumber) " of  8";
-		
-    }
-	
+    <script src="js/libs/jquery-1.10.2.min.js"></script>
+    <script src="js/libs/bootstrap.min.js"></script>
+    <link rel="stylesheet" media="screen" href="css/screen.css">
+    <script src="js/jquery.js"></script>
+    <script src="js/jquery.validate.js"></script>
+    <script src="js/additional-methods.min.js"></script>
+    <script type="text/javascript">
+    <?php if($user_name == 'admin') { ?>
+    $(document).ready(function(e) {
+        $("body").on("mouseover", ".mainnav-menu .dropdown", function() {
+            $(".mainnav-menu .dropdown ul").children().css('display', 'inline-block');
+        });
+    });
+    <?php } ?>
+
+    <?php if ($ismobile == 1) { ?>
+        $(".dropdown-backdrop").remove();
+    <?php } ?>
+</script>
+<?php if ($ismobile == 1) { ?>
+<style type="text/css">
+.dropdown-backdrop {
+    position: static !important;
 }
 </style>
-
-<?php 
-$ce_id=$_REQUEST['id'];
- 
- //echo "select emp_id from login where user_name='".$user_name."' and status='Allowed'";
-$sql_l=mysql_query("select emp_id from login where user_name='".$user."' and status='Allowed'");
-$row_l=mysql_fetch_object($sql_l);
-
-//echo "select emp.cname,dm.desig from hrms_empdet emp inner join desig_master dm on dm.desig_code=emp.pdesig1 and emp.status='Y' and dm.status='Y' and emp.emp_id='".$row_l->emp_id."' ";
-$sql_emp=mysql_query("select emp.cname,dm.desig from hrms_empdet emp inner join desig_master dm on dm.desig_code=emp.pdesig1 and emp.status='Y' and dm.status='Y' and emp.emp_id='".$row_l->emp_id."' ");
-$row_emp=mysql_fetch_object($sql_emp);
+<?php } ?>
 
 
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="css/font-awesome.min.css">
 
-$sql=mysql_query("select * from hrms_empdet where r_id='".$ce_id."' and status='Y'");
-$row=mysql_fetch_object($sql);
-$rr=$row->emp_id;
-$rr_age  =$row->dob;
-$today = date("Y-m-d");
-$diff = date_diff(date_create($rr_age), date_create($today));
-$cl_age=$diff->format('%y');
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- App CSS -->
+    <link rel="stylesheet" href="css/mvpready-admin.css">
+    <link rel="stylesheet" href="css/mvpready-flat.css">
+    <link rel="stylesheet" href="css/chosen.css">
+    <style type="text/css" media="all">
+    /* fix rtl for demo */
+
+    .chosen-rtl .chosen-drop {
+        left: -9000px;
+    }
+    </style>
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="img/icon.ico">
+</head>
+<!--oncopy="return false" oncut="return false" onpaste="return false"-->
+
+<body class=" ">
+    <div id="wrapper">
+        <header class="navbar navbar-inverse" role="banner" style="width:100%;">
+            <div class="container" style="padding-bottom:0;">
+                <div class="navbar-header">
+                    <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span> <i class="fa fa-cog"></i> </button>
+                    <div style="float:left; color:#FFF; position:absolute; width:300px;  margin-top: 5px;">
+                        <?php echo date("l | d-M-Y, g:i:s A") ?></div>
+                    <div
+                        style="color: #fff; float: right; position: relative;  text-align: right; width: 260px;  margin-top: 6px;">
+                        Help</div>
+
+                    <a href="./" class="navbar-brand navbar-brand-img">
+                        <?php if($user == 'rpfprd' || $user == 'rpfhrd') { // raman 2019-08-02?><img
+                            src="img/rpf_login_logos.png" style="margin-top: -14px;"
+                            alt="Radiant Cash Management Services" width="100%"> <?php } else {?> <img
+                            src="img/login_logos.png" style="margin-top: -14px;" alt="Radiant Cash Management Services"
+                            width="100%"> <?php } ?> </a>
 
 
 
-$sel3=mysql_query("select * from region_master where status='Y' and region_name='".$row->region."'");
-$res3=mysql_fetch_array($sel3);
-
-$sel_reg=mysql_query("select * from hrms_empdet where status='Y' and cname='".$res3['head_name']."'");
-$res_reg=mysql_fetch_array($sel_reg);
+                </div>
+                <!-- /.navbar-header -->
+                <?php
+$user_name = $_SESSION['lid'];
+$query_header =  "select user_name from login where user_name ='$user_name'";
+$run_query = mysql_query($query_header);
+$result = mysql_fetch_assoc($run_query);
 ?>
- <div id="printableArea">
- 
-<body style="padding:5% 10% 6% 1%;">
-<div style="margin-bottom: 25em;"></div>
-<div class="pager">
-<table width="800px" align="center"  cellspacing="0" cellpadding="5">
-<thead>
-<tr>
-<th align="center"><p>&nbsp;</p><p>&nbsp;</p></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center">[To be executed on stamp paper of applicable value]</td>
-</tr>
-<tr>
-<td align="center"><strong>Agreement</strong></td>
-</tr>
-<tr>
-<td><p>This Agreement is entered into as of  <strong><?php echo date('dS',strtotime($row->aggr_date)); ?></strong> day of
-<strong><?php echo date('F',strtotime($row->aggr_date)); ?></strong> of <strong><?php echo date('Y',strtotime($row->aggr_date)); ?> at <?php echo $row->region.'.';?></strong> 
+                <nav class="collapse navbar-collapse" role="navigation">
+                    <ul class="nav navbar-nav noticebar navbar-left">
+                        <li class="dropdown" id="notify_id" rel="<?php echo $result["user_name"]; ?>"> <a
+                                href="page-notifications.html" class="dropdown-toggle" data-toggle="dropdown">
+                            </a>
+                            <ul class="dropdown-menu noticebar-menu noticebar-hoverable" id="event_list" role="menu">
 
- </p>
- </td>
-</tr>
-<tr><td><p>By and Between: <br></p></td>
-<tr><td><p class="doc_st"><strong>1. Radiant Cash Management Services Ltd.,</strong> is situated at <?php echo $res3['address']; ?>, a private company incorporated in under Companies Act, 1956, having its registered address at No 28, Vijayaraghava Road, T Nagar, Chennai- 600017  (the <strong>"Company"</strong> which expression shall, unless the context requires otherwise, mean and include its successors and permitted assigns); and</p>
-</td></tr>
-<tr><td><p class="doc_st"><strong>2. Mr <?php echo $row->cname;?></strong> son of <strong><?php echo $row->father_name;?></strong>, aged about <strong><?php echo $cl_age;?></strong> years and currently residing at <strong><?php echo ucwords($row->address);?></strong>, (hereinafter referred to as the <strong>"Service Provider").</strong> 
- <p class="page-breaker"></p>
- 
+                                <li> <a href="./?pid=cal&id=<?php // echo $res1->id;?>" class="noticebar-item"> <span
+                                            class="noticebar-item-image"> <i
+                                                class="fa fa-arrow-circle-right text-success"></i> </span> <span
+                                            class="noticebar-item-body"> <strong class="noticebar-item-title">Name :
+                                                <?php // echo ucfirst($res1->name);?></strong> <span
+                                                class="noticebar-item-text">Date :
+                                                <?php // echo date("d M Y",strtotime($res1->date));?></span> <span
+                                                class="noticebar-item-time"><i class="fa fa-clock-o"></i> Created :
+                                                <?php // echo date("d M Y H:i:s",strtotime($res1->created_time));?></span>
+                                        </span> </a> </li>
+                                <?php /*}*/ ?>
 
-<p class="doc_st"><br>The Company and the Service provider are individually referred to as <strong>"Party"</strong> and collectively as <strong>"Parties"</strong>.<br>
-<br>As a condition of the Service provider  being engaged (or his engagement being continued) with the Company, and in consideration of his relationship with the Company and the receipt of the compensation now and hereafter paid/ payable to the Service provider  by the Company, the Service provider  hereby agrees to the following:</p>
-<ul style="list-style:decimal;text-align:justify;">
-	<li style="font-size: 18px;"><strong>Service provider  Relationship: </strong>
-	<p>On and subject to the terms and conditions of this Agreement and in accordance with applicable law, the Company hereby agrees to engage the Service provider, and the Service provider hereby agrees to be engaged by the Company as a Service provider  (or such other position as may be designated by the Company and accepted by the Service provider  from time to time). </p>
-	</li>	
-	<li style="font-size: 18px;"><strong>Performance of Duties: </strong>The Service provider  shall perform the following duties:
-		<ul style="list-style:lower-roman;">
-			<li><p>	The Service provider will be responsible for the collection of cash/cheque/instruments/demand drafts/gold and other valuables including foreign currency <strong>("Valuables")</strong> from the pick-up point allocated to him at the specified time and date. </p></li>
-			<li><p>The Service provider assures to deliver/deposit Valuables immediately at the allotted time and place, if delayed the same need to be periodically updated to the respective Manager with cause of delay. </p></li><p class="" id="foot1"></p>
-			<li><p>During the period of his engagement with the Company, the Service provider  assures to devote his best efforts to the interests of the Company and is well aware not to engage in any activities like theft, malpractices, fraudulent behaviours which leading to material loss and detrimental to the best interests of the Company.  </p></li>
-			<li><p>The Service provider acknowledges Company norms to maintain proper registers/ records of the daily cash collections handled with necessary vouchers, receipts and supporting documents. The accounts, records and other documents will be inspected by the Company's representatives every quarter. </p></li>
-		</ul>
-	</li>
-	
-	<li style="font-size: 18px;"><strong>Confidentiality and Privacy:</strong>
-	<p>During the term of engagement and for a period of 12 (twelve) months thereafter, the Service provider  shall not use or disclose any Confidential Information of the Company to a third party without the express, prior and written consent or direction of the Company. The Service provider shall use the Confidential Information only in connection with and to the extent required for the  <p class="page-breaker"></p>purposes of this Agreement and shall not use the Confidential Information for any purpose or circulate it with any other team member without Company's instruction which will eventually lead to disciplinary action upon Company's sole decision depending on the incident analysis report. For this purpose, <strong>"Confidential Information"</strong> shall mean any oral or written information (in whatever media or form, whether tangible or otherwise) disclosed by or on behalf of the Company to the Service provider  that is marked or designated as confidential, is treated by the Company as confidential, or any other information of such nature as may be reasonably construed to be confidential, and includes without limitation: 
-	</p>
-		<ul style="list-style:lower-roman;">
-			<li><p>all information of the Company marked or otherwise designated confidential, restricted, proprietary or with a similar designation;</p></li>
-			<li><p>information which relates to the financial position of the Company or the internal management and structure of the Company, or the personnel, policies and strategies of the Company; </p></li>
-			<li><p>Company intellectual property, trade secrets, past, present and future business strategies, business facilities, resources, operations, requirements, methods, customer information, know-how, inventions, discoveries, and improvements of the Company;</p></li>
-			<li><p>employee information of the Company, including names, salaries, employee agreements, employee profiles and other information; </p></li>
-			<li><p>any other information provided to the Service provider  in the course of his engagement with the Company, including information relating to any customers of the Company;</p></li>
-			<li><p>this Agreement; or</p></li>
-			<li><p>any other information of such nature as may be reasonably construed to be confidential or proprietary.</p></li>
-		</ul>
-		<p>Upon discovery of or reasonable suspicion of any unauthorized use or disclosure of Confidential Information, Service provider should inform the Company immediately and prevent further unauthorized use. 
-		</p>
-	</li>
-	<li style="font-size: 18px;"><strong>Remuneration:</strong> In consideration of your compliance with the terms of this Agreement and your engagement with the Company, the following are the terms of the remuneration payable by the Company to the Service provider :
-	<br>
-	<br>
-		<table width="100%" align="center"  cellspacing="0" cellpadding="5" border="1" style="border-collapse:collapse;">
-	  <tr>
-		<th>Particulars</th>
-		<th>Amount (Rs.)</th>
-	  </tr>
-	  <tr>
-	  <td>Service Charges</td>
-	  <td></td>
-	  </tr>
-	  <tr>
-	  <td>Telephone Charges</td>
-	  <td></td>
-	  </tr>	 
-	  <tr>
-	  <td align="center"><b>Total</b></td>
-	  <td></td>
-	  </tr>
-	</table> <p class="page-breaker"></p>
-	<p>Other reimbursement as per actuals.       </p>
-	<p>In the performance of this Agreement, the Service provider shall act as an independent contractor, and he understands and acknowledges that he will not be entitled to any other benefits other than mentioned above  </p>
-	</li>
-	
-	<li style="font-size: 18px;"><strong>Indemnity: </strong>
-	<p>The Service provider  further agrees to defend, indemnify, hold harmless and keep indemnified without limitation the Company against any and all actual or alleged loss, damage or third-party claim which the Company may suffer arising from or relating to any loss, theft or embezzlement of Valuables or any breach of this Agreement by the Service provider  in connection with 
-	</p>
-<ul style="list-style:lower-alpha;">
-			<li style="margin-left: -15px !important;"><p>deficiency in services or act of commission / omission on the services</p></li>
-			<li style="margin-left: -15px !important;"><p>breach of Clause 3 Confidentiality and Privacy obligation under this Agreement</p></li>
-		</ul>
-	</li>
-	
-	<li style="font-size: 18px;"><strong>Company's right to injunctive relief: </strong>
-	<p>Notwithstanding the above, the Service provider  acknowledges that monetary damages may not be a sufficient remedy for the Company for any breach of any of the Service provider's obligations herein provided and the Service provider  further acknowledges that the Company is entitled to specific performance or injunctive relief, as may be appropriate, as a remedy for any breach or threatened breach of those obligations by the Service provider , in addition to any other remedies available to the Company in law or in equity.
-	</p>
-	</li>
-	
-	<li style="font-size: 18px;"><strong>Term and Termination:</strong>
-	<p>This Agreement is valid for a period of 3 year from the effective date and shall be renewed with mutual consent. Either Party may terminate this Agreement, by providing a notice of one month to the other Party. The Company may, in lieu of such notice, pay to the Service provider the applicable remuneration for such period.
-	</p>
-	<p>However, in the following circumstances the Service provider's services may be terminated by the Company, without notice in case of the Company has reason to believe the Service provider has committed any of the following acts:
-	</p>
-	
-		<ul style="list-style:lower-roman;text-align:justify;">
-			<li><p>Theft, forgery, deception, dishonesty with Company property with intent for personal or professional gain;</p></li>
-			<li><p>Misappropriation of customers cash in any manner, whether for temporary use and replacement or otherwise;</p></li>
-			<li><p>Unauthorized failure to deposit the collected cash directly from collection point;  </p></li> <p class="page-breaker"></p>
-			<li><p>Misuse or tampering of collection voucher/receipts in any manner; and</p></li>
-			<li><p>Any form of misbehaviour with the co-employees, insubordination, drunkenness during service or found within the organization or in the vicinity thereof;</p></li>
-			<li><p>Assisting/accompanying/deputing unauthorized person in dealing with customers cash;</p></li>
-			<li><p>Indecent assault of any Company employee;</p></li>
-			<li><p>Criminal conviction by court of law;</p></li>
-			<li><p>Habitual neglecter of his/her duties, despite written warning;</p></li>
-			<li><p>Any activity, which brings disrepute to the Company; and</p></li>
-			<li><p>Any wilful misconduct towards the members of the opposite sex.</p></li>
-			<li><p>Violation of SOPs on cash pick or other assigned activities.</p></li>
-		</ul>
-	
-	</li>
-	
-	<li style="font-size: 18px;"><strong>Consequences of Termination: </strong>
-		<p>In the case of termination of the Service provider's engagement with the Company for any reason whatsoever or on written request by Company, the Service provider  shall immediately and at the time of notification of cessation, return to the Company, all Valuables and Confidential Information and all papers and documents, information recorded or held electronically or otherwise, materials, equipment, properties and related items of the Company which may be in the Service provider's possession at such time in such manner deemed appropriate for disposal. The obligations of the Service provider under Clauses 3 (Confidential Information), and Clause 5 (Indemnity), the rights of the Company under Clause 6 (Company's right to injunctive relief) and Clause 14 (Code of Conduct) shall survive and continue to operate even after the termination of the engagement. </p>
-	</li>
-	
-	<li style="font-size: 18px;"><strong>Governing Law and Jurisdiction:</strong>
-		<p>This Agreement shall be governed by and be construed in accordance with the laws of [India] and the courts at [Chennai] shall have exclusive jurisdiction on the matters arising from the Agreement, without regard to the principles of conflicts of laws. </p>
-	</li>
-	
-	<li style="font-size: 18px;"><strong>No Waiver: </strong>
-		<p>The failure by the Company to insist, in one or more instances, upon strict performance of the obligations under this Agreement, or to exercise any rights contained herein, shall not be construed as waiver, or relinquishment for the future, of such obligation or right, which shall remain and continue in full force and effect. <p class="page-breaker"></p> No failure or delay by any party in exercising any right, power or privilege hereunder shall operate as a waiver thereof. The rights and remedies herein provided shall be cumulative and not exclusive of any rights or remedies provided by law. </p>
-	</li>
-	
-	<li style="font-size: 18px;"><strong>Severability:</strong>
-		<p>In the event that any restriction or limitation under this Agreement is found to be unreasonable or otherwise invalid in any jurisdiction, in whole or in part, the Service provider hereby acknowledges and agrees that such restriction or limitation shall remain and be valid in all other jurisdictions covered by the territorial scope of his obligations hereunder. </p>
-	</li>
-	
-	<li style="font-size: 18px;"><strong>No Assignment:</strong>
-		<p>This Agreement is personal in nature to the Service provider and the Service provider cannot assign this Agreement without the prior written consent of the Company. The Company shall be entitled to assign its rights and obligations under this Agreement without the prior written consent of the Service provider. </p>
-	</li>
-	
-	<li style="font-size: 18px;"><strong>Representation:</strong>
-		<p>Service provider  thereby guarantees to Company that he/she has obtained  necessary certificate as applicable to enter into and perform this Agreement, and that this Agreement will constitute a binding contract, enforceable against Service provider  in accordance with its terms in performance of its duties, responsibilities, and obligations under this Agreement in compliance with all applicable law also affirms that his/her representations to Company are complete and accurate, not misleading or deceptive and may be relied on by Company in entering into this Agreement. 
+                                <!-- <li class="noticebar-menu-view-all">
+                <a href="page-notifications.html">View All Notifications</a>
+              </li>-->
+                            </ul>
+                        </li>
 
-</p>
-	</li>
-	
-	<li style="font-size: 18px;"><strong>Code of Conduct: </strong>
-		<p>Service provider during the course of his engagement with the Company assures to maintain professional ethics and respect other employee's integrity by adhering to appropriate standards of code of conduct as set out in this clause in order to enhance the reputation of the Company. Service provider  assures to understand that breach of this Clause 14 will result in enforcement of disciplinary action as per Company policy not limiting to potential dismissal or termination of employment but any other legal action as available or all the above together, as applicable. While in Service under this Agreement or post termination, Service provider  ensures not to claim innocence with the given code:</p>
-		
-			<p>-	Be known that you are not permitted to carry on any business or profession or enter into any part time job in any capacity, or provide services or be employed by or engage with any other firm, company or person. You hereby oblige to be a full timer and devote your whole time and attention to perform and promote the interest of the Company;</p> <p class="page-breaker"></p>
-			<p>-	Be known that you are to adhere to the moral standards and Company discipline as updated from time to time with no anticipated or actual participation directly or indirectly in any individual or concerted action or malicious or illegal activity against the Company or society, also ensure not to participate or be part of any illegal strike against Company.</p>
-			<p>-	Be known that you shall not indulge in any activity(ies) which may affect, deteriorate, Lessen, shortage, harm, damage or cause injury to property(ies), belonging(s), asset[s), stock(s) and / or cause harm, harass, injury to person, contract staff, staff of the company directly or indirectly. </p>
-			<p>-	Be known that you shall not indulge in any act(s) and / or activity(ies) which will result in moral turpitude, misconduct, illegal, unethical, immoral, antisocial, crime/fraudulent activities, mis-behavior, personal work at business hours, dishonesty, refuse to accept the orders of Management, high absenteeism or absconding without proper notice/approval of the management, misuse of Company’s resource, material misstatement, acceptance of bribe internally or externally, etc.</p>
-			<p>-	Be known that you assure to accept and undertake the task(s) entrusted by the company on daily bases and abide by the Organizational objectives which will he laid out from time to time and work towards the betterment of the Company. </p>
-			<p>-	Be known that you assure to accept and undertake the task(s) entrusted by the company on daily bases and abide by the Organizational objectives which will he laid out from time to time and work towards the betterment of the Company. </p>
-			<p>-	Be known that you are to adhere to the maintenance of Company secrecy and confidentiality with regards to any day-to-day activity updates or sharing information about the company, and assure not to deal in any activity(ies) via espionage, theft, embezzlement or any other act(s) which will be detrimental to the interest(s) of the company, directly or indirectly now or later.</p>
-		
-	</li>
-	
-	
-	
-	
-	
-	<p class="page-breaker" id="foot3"></p>
-	<p><Strong>IN WITNESS WHEREOF,</strong> the Parties have entered into this Agreement on the day, year and place first above written.
+                        <!-- <li class="dropdown">
+            <a href="page-notifications.html" class="dropdown-toggle" data-toggle="dropdown">
+              <i class="fa fa-envelope"  style="color: #FFFFFF;"></i>
+              <span class="navbar-visible-collapsed">&nbsp;Messages&nbsp;</span>
+            </a>
+
+            <ul class="dropdown-menu noticebar-menu noticebar-hoverable" role="menu">                
+              <li class="nav-header">
+                <div class="pull-left">
+                  Messages
+                </div>
+
+                <div class="pull-right">
+                  <a href="javascript:;">New Message</a>
+                </div>
+              </li>
+
+              <li>
+                <a href="page-notifications.html" class="noticebar-item">
+                  <span class="noticebar-item-image">
+                    <img src="img/avatars/avatar-1-md.jpg" style="width: 50px" alt="">
+                  </span>
+
+                  <span class="noticebar-item-body">
+                    <strong class="noticebar-item-title">New Message</strong>
+                    <span class="noticebar-item-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit...</span>
+                    <span class="noticebar-item-time"><i class="fa fa-clock-o"></i> 20 minutes ago</span>
+                  </span>
+                </a>
+              </li>
+
+              <li>
+                <a href="page-notifications.html" class="noticebar-item">
+                  <span class="noticebar-item-image">
+                    <img src="img/avatars/avatar-2-md.jpg" style="width: 50px" alt="">
+                  </span>
+
+                  <span class="noticebar-item-body">
+                    <strong class="noticebar-item-title">New Message</strong>
+                    <span class="noticebar-item-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit...</span>
+                    <span class="noticebar-item-time"><i class="fa fa-clock-o"></i> 5 hours ago</span>
+                  </span>
+                </a>
+              </li>
+
+              <li class="noticebar-menu-view-all">
+                <a href="page-notifications.html">View All Messages</a>
+              </li>
+            </ul>
+          </li>-->
+
+                        <!--<li class="dropdown">
+            <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">
+              <i class="fa fa-exclamation-triangle" style="color: #FFFFFF;"></i>
+              <span class="navbar-visible-collapsed">&nbsp;Alerts&nbsp;</span>
+            </a>
+
+            <ul class="dropdown-menu noticebar-menu noticebar-hoverable" role="menu">                
+              <li class="nav-header">
+                <div class="pull-left">
+                  Alerts
+                </div>
+
+              </li>
+
+              <li class="noticebar-empty">                  
+                <h4 class="noticebar-empty-title">No alerts here.</h4>
+                <p class="noticebar-empty-text">Check out what other makers are doing on Explore!</p>                
+              </li>
+            </ul>
+          </li>-->
+
+                    </ul>
+                    <!--<a href="./" class="navbar-brand navbar-brand-img">
+	          <img src="img/img2.png" alt="MVP Ready" align="center" style="margin-left: 110px;">
+	        </a>-->
+                    <ul class="nav navbar-nav navbar-right" style="margin-top: -21px; margin-right: 44px;">
+                        <li> <a href="javsacript:;">Welcome <?php echo $result["user_name"]; ?> |</a> </li>
+                    </ul>
+                    <div style="clear:both;"></div>
+                    <ul class="nav navbar-nav navbar-right" style="margin-top: -54px;">
+                        <!--<li style="margin-top: 20px; margin-right: 10px;"><i class="fa fa-font" style="color: #FFF; cursor: pointer;"></i></li>
+			<li style="margin-top: 19px; margin-right: 10px;"><i class="fa fa-font" style="color: #FFF; font-size: 17px; cursor: pointer;"></i></li>
+			<li style="margin-top: 17px; margin-right: 10px;"><i class="fa fa-font" style="color: #FFF; font-size: 19px; cursor: pointer;"></i></li>
+			<li style="margin-top: 16px; margin-right: 10px;"><i class="fa fa-font" style="color: #FFF; font-size: 21px; cursor: pointer;"></i></li>-->
+
+                        <li style="clear:both;"></li>
+                        <li> <a data-toggle="modal" href="?pid=change_password" class="update_locid change_pwd"
+                                onClick="change_pwd()">Change Password </a> </li>
+                        <li><a>|</a></li>
+                        <li><a <?php if($user == 'rpfprd' || $user == 'rpfhrd') {  ?> href="rpf_login.php?nav=0_6"
+                                <?php } else { ?>href="login.php?nav=0_6" <?php } ?>> Sign out</a> </li>
+
+                        <li class="dropdown navbar-profile" style="margin-top: -10px;"> <a class="dropdown-toggle"
+                                data-toggle="dropdown" href="javascript:;"> <img src="img/avatars/avatar-1-xs.jpg"
+                                    class="navbar-profile-avatar" alt=""> <span class="navbar-profile-label">rod@rod.me
+                                    &nbsp;</span> <i class="fa fa-caret-down"></i> </a>
+                            <ul class="dropdown-menu" role="menu">
+                                <?php if($user == 'admin') { ?>
+                                <li> <a href="?pid=email_setting"> <i class="fa fa-cogs"></i> &nbsp;&nbsp;Email Settings
+                                    </a> </li>
+                                
+                                <li class="divider"></li>
+                                <?php } ?>
+                                <!-- <li> <a href="login.php"> <i class="fa fa-sign-out"></i> &nbsp;&nbsp;Logout </a> </li> -->
+                            </ul>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <!-- /.container -->
+
+        </header>
+        <div class="mainnav">
+            <div class="container"> <a class="mainnav-toggle" data-toggle="collapse" data-target=".mainnav-collapse">
+                    <span class="sr-only">Toggle navigation</span> <i class="fa fa-bars"></i> </a>
+                <nav class="collapse mainnav-collapse" role="navigation">
+                    <form class="mainnav-form pull-right" role="search" style="display: none;">
+                        <input type="text" class="form-control input-md mainnav-search-query" placeholder="Search">
+                        <button class="btn btn-sm mainnav-form-btn"><i class="fa fa-search"></i></button>
+                    </form>
+                    <ul class="mainnav-menu">
+                        <?php
+    if($pid == '') {
+        $pid = 'dash';
+    }
+$query_page = "SELECT menu_name, page_name, folder_name FROM page_creation WHERE page_id='".$pid."'";
+$sql_page = mysql_query( $query_page);
+$res_page = mysql_fetch_assoc($sql_page);
 
 
-</p>
-</ul>
-</td>
-</tr>
+$query_menu =  "SELECT menu_name,page_title,page_name,page_id, menu_icon,other_link FROM page_creation WHERE status='Y' AND page_title!='' AND page_order!='0' AND sub_menu_order='0' ORDER BY page_order_main, page_order ASC";
+$sql_menu = mysql_query( $query_menu);
+while($res_menu = mysql_fetch_assoc($sql_menu)) {
+    $menu_details[$res_menu['menu_name']]['page_title'][] = $res_menu['page_title'];
+    $menu_details[$res_menu['menu_name']]['page_name'][] = $res_menu['page_name'];
+    $menu_details[$res_menu['menu_name']]['page_id'][] = $res_menu['page_id'];
+    $menu_details[$res_menu['menu_name']]['other_link'][] = $res_menu['other_link'];
+    $menu_details[$res_menu['menu_name']]['menu_icon'][] = $res_menu['menu_icon'];
+    $query_menu1 = "SELECT menu_name,page_title,page_name,page_id, menu_icon, menu_creation FROM page_creation WHERE status='Y' AND sub_menu_order!='0' AND menu_creation='".$res_menu['page_title']."' ORDER BY  	sub_menu_order ASC";
 
-<tr>
-<td>
-	<table width="100%" align="center"  cellspacing="0" cellpadding="5" border="1">
-	  <tr>
-		<td width="50%"><p><strong>For Radiant Cash Management Services Ltd:</strong></p>
-		<p>&nbsp;</p>
-		<p>Authorized Signatory</p>
-		<p>Name:</p>
-		<p>Designation:</p>		
-		</td>
-		<td width="50%"><p><strong>For the Service provider :</strong></p>
+    $sql_menu1 = mysql_query( $query_menu1);
+    while($res_menu1 = mysql_fetch_assoc($sql_menu1)) {
+        $menu_details[$res_menu['menu_name']]['multi'][$res_menu1['menu_creation']]['page_title'][] = $res_menu1['page_title'];
+        $menu_details[$res_menu['menu_name']]['multi'][$res_menu1['menu_creation']]['page_name'][] = $res_menu1['page_name'];
+        $menu_details[$res_menu['menu_name']]['multi'][$res_menu1['menu_creation']]['page_id'][] = $res_menu1['page_id'];
+        $menu_details[$res_menu['menu_name']]['multi'][$res_menu1['menu_creation']]['other_link'][] = $res_menu1['other_link'];
+        $menu_details[$res_menu['menu_name']]['multi'][$res_menu1['menu_creation']]['menu_icon'][] = $res_menu1['menu_icon'];
 
-		<p>Name: <?php echo $row->cname;?></p>
-		<p>Date:</p>
-		
-		</td>
-		
-	  </tr>
-	</table>
-	
-	
-</td>
-</tr>
+    }
+}
 
-<!--<tr style="float:left;">
-<td>
-<?php
-// $PNG_TEMP_DIR = dirname(__FILE__).DIRECTORY_SEPARATOR.'phpqrcode/temp'.DIRECTORY_SEPARATOR;
-    // $PNG_WEB_DIR = 'phpqrcode/temp/';
+$sql_auth = mysql_query( "SELECT * FROM auth_t WHERE user_name='".$user."'");
+$res_auth = mysql_fetch_assoc($sql_auth);
+$page_acc = explode(',', $res_auth['pid']);
 
-    // include "phpqrcode/qrlib.php";    
-    
-    // if (!file_exists($PNG_TEMP_DIR))
-        // mkdir($PNG_TEMP_DIR);
-    
-    
-    // $filename = $PNG_TEMP_DIR.'test.png';
-    
-   // $errorCorrectionLevel = 'L';
- // $matrixPointSize = 2;
-// // $requ = $_REQUEST['ce_id']."/".$res1['ce_name']."/".$res1['created_date'];
-// $requ = "CE Id : ".$row->emp_id."\nCE Name : ".$row->cname."\nLocation:".$row->plocation;
-  // $filename = $PNG_TEMP_DIR.'test'.md5($requ.'|'.$errorCorrectionLevel.'|'.$matrixPointSize).'.png';
-        // QRcode::png($requ, $filename, $errorCorrectionLevel, $matrixPointSize, 2);
-  // $test=$PNG_WEB_DIR.basename($filename); 
-   // $datetime=date('d-m-Y H:i:s');
-   ?>
-   <img src="<?php echo $test; ?>" style="max-width: 100%;float: right; text-align:right;padding-top:20px;margin-left:40px;"/>
-   </td>
-</tr>-->
+if(!empty($menu_details)) {
+    foreach($menu_details as $key => $val) {
+        $submenu_count = count($val['page_title']);
 
-</tbody>
-<tfoot>
-<tr>
-            <!-- Add Page Numbering in HTML using &p; and &P 
-            <td style="width: 90%">Page <span style="color: navy; font-weight: bold">&p;</span> of <span style="font-size: 16px; color: green; font-weight: bold">&P;</span> pages
-            </td>-->
-</tr>
-</tfoot>
-</table>
-<p class="page-breaker" id="foot4"></p>
-</body>
-</div>
-</div>
-</html>
+        $load_page = $val['page_id'];
+        $result = array_intersect($page_acc, $load_page);
+        $count_resul = count($result);
+        if($count_resul > 0) {
+            ?>
+                        <li class="dropdown <?php if($key == $res_page['menu_name']) {
+                            echo 'active';
+                        }?>"> <a
+                                href="<?php if(count($val['other_link']) == '1') {
+                                    echo './';
+                                } ?>"
+                                class="dropdown-toggle" <?php if($submenu_count > 0) { ?>data-toggle="dropdown"
+                                data-hover="dropdown"
+                                <?php } else {
+                                    echo 'style="padding-top: 9px;"';
+                                }  ?>><?php echo $key; ?>
+                                <?php if($submenu_count > 0) { ?>
+                                <i class="mainnav-caret"></i>
+                                <?php } ?>
+                            </a>
+                            <?php if($submenu_count >= 1) {
+                                ?>
+                            <ul class="dropdown-menu" role="menu">
+                                <?php if(!empty($val['page_title'])) {
+                                    foreach($val['page_title'] as $key1 => $val1) {
+                                        if(in_array($val['page_id'][$key1], $page_acc)) {
+                                            //echo $val1;&& count($menu_details[$key]['multi'][$val1]['page_title'])>0
+                                            ?>
+                                <li <?php if($user_name == 'admin') { ?>class="dropdown-submenu" <?php } ?>> <a
+                                        href="<?php if($val['page_id'][$key1] == 'securefile') {
+                                            echo 'http://203.196.171.245/HOST/';
+                                        } else {
+                                            echo '?pid='.$val['page_id'][$key1];
+                                        } ?>"
+                                        <?php if($val['page_id'][$key1] == 'securefile' || $key == 'Reports') { ?>target="_blank"
+                                        <?php } ?>> <i class="fa <?php echo $val['menu_icon'][$key1]; ?>"></i>
+                                        &nbsp;&nbsp;<?php echo $val1 ?> </a>
 
-<script type="text/javascript">
-function printDiv(divName) 
-{
- 
-     var printContents = document.getElementById(divName).innerHTML;
-     var originalContents = document.body.innerHTML;
-	
-     document.body.innerHTML = printContents;
-     window.print();
-     document.body.innerHTML = originalContents;
+                                    <?php
+                    if($user_name == 'admin') {
 
+                        ?>
+                                    <ul class="dropdown-menu">
+                                        <?php
+                        foreach($menu_details[$key]['multi'][$val1]['page_title'] as $key3 => $val3) {
+                            ?>
+
+                                        <li>
+                                            <a
+                                                href="<?php echo '?pid='.$menu_details[$key]['multi'][$val1]['page_id'][$key3]; ?>">
+                                                <i
+                                                    class="fa <?php echo $menu_details[$key]['multi'][$val1]['menu_icon'][$key3]; ?>"></i>
+                                                &nbsp;&nbsp;<?php echo $menu_details[$key]['multi'][$val1]['page_title'][$key3]; ?>
+                                            </a>
+                                        </li>
+                                        <?php }
+                        ?>
+
+                                    </ul>
+                                    <?php
+                    }
+                                            ?>
+
+                                </li>
+                                <?php
+                                        }
+                                    }
+                                } ?>
+                            </ul>
+                            <?php } ?>
+                        </li>
+
+                        <?php
+        }
+    }
 }
 
 
-</script>
+if($user == 'rpfprd' || $user == 'rpfhrd') {
+} else { 
+
+    ?>
+                        <li class="dropdown "> <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown"
+                                data-hover="dropdown"> S/W User Guide<i class="mainnav-caret"></i> </a>
+                            <ul class="dropdown-menu" role="menu">
+
+                                <li class="dropdown-submenu"> <a tabindex="-1" href="?pid=cutof_time"> <i
+                                            class="fa fa-bars"></i> &nbsp;&nbspReport Cutoff Time</a></li>
+                                <li class="dropdown-submenu"> <a tabindex="-1" href="#"> <i class="fa fa-bars"></i>
+                                        &nbsp;&nbspPoint Operations</a>
+                                    <ul class="dropdown-menu">
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;Point Master
+                                                Process (How to add Points?)</a> </li>
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;CE Mapping
+                                                Process</a> </li>
+                                    </ul>
+                                </li>
+                                <li class="dropdown-submenu"> <a tabindex="-1" href="#"> <i class="fa fa-bars"></i>
+                                        &nbsp;&nbsp;Daily Transactions</a>
+                                    <ul class="dropdown-menu">
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;Daily
+                                                Transaction Upload Process</a> </li>
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;Daily Trans.
+                                                MIS Update Process</a> </li>
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;How to send
+                                                the Intimation/Emergency SMS sent from Software?</a> </li>
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;Bank Deposit
+                                                Operation Process flow</a> </li>
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;How to enter
+                                                bank Deposit in Various Deposits (Burial/PB/CB)?</a> </li>
+                                    </ul>
+                                </li>
+                                <li class="dropdown-submenu"> <a tabindex="-1" href="#"> <i class="fa fa-bars"></i>
+                                        &nbsp;&nbsp;Device Trans.</a>
+                                    <ul class="dropdown-menu">
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;Handheld
+                                                Application</a> </li>
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;Radiant
+                                                Sandesh Application</a> </li>
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;Radiant
+                                                Darpan Application</a> </li>
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;How to
+                                                Approve Mobile / Handheld Receipt in Region?</a> </li>
+                                    </ul>
+                                </li>
+                                <li class="dropdown-submenu"> <a tabindex="-1" href="#"> <i class="fa fa-bars"></i>
+                                        &nbsp;&nbsp;Banking</a>
+                                    <ul class="dropdown-menu">
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;Bank Account
+                                                Creation</a> </li>
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;Checked
+                                                Report</a> </li>
+                                        <li> <a href="?pid=sr_recon"> <i class="fa fa-stack-exchange"></i>
+                                                &nbsp;&nbsp;Reconciliation Process</a> </li>
+                                        <li> <a href="?pid=float_recon"> <i class="fa fa-stack-exchange"></i>
+                                                &nbsp;&nbsp;Float Recon</a> </li>
+                                    </ul>
+                                </li>
+
+
+
+
+
+                                <li class="dropdown-submenu"> <a tabindex="-1" href="#"> <i class="fa fa-bars"></i>
+                                        &nbsp;&nbsp;HRMS</a>
+                                    <ul class="dropdown-menu">
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;HRMS -
+                                                Staff/CE Appointment Process</a> </li>
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;Update and
+                                                Maintain Staff / CE Data</a> </li>
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;Upload
+                                                Staff/CE Documents in Software</a> </li>
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;How to enter
+                                                the Daily staff attendance?</a> </li>
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;How to upload
+                                                the Monthly staff attendance?</a> </li>
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;How to
+                                                Generate the Payslip in Application?</a> </li>
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;How to
+                                                Generate the Regional Acutance Report?</a> </li>
+                                    </ul>
+                                </li>
+                                <li class="dropdown-submenu"> <a tabindex="-1" href="#"> <i class="fa fa-bars"></i>
+                                        &nbsp;&nbsp;Cash Van</a>
+                                    <ul class="dropdown-menu">
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;Cash Can
+                                                Operation Process Flow</a> </li>
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;What is mean
+                                                Cash Van Service?</a> </li>
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;How to map
+                                                the DCV Cash Van and assign crew members?</a> </li>
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;How to Upload
+                                                the CVR (Inter/Intra) Transactions?</a> </li>
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;How to map
+                                                the Cash Van for CVR Trans. and assign crew members?</a> </li>
+                                    </ul>
+                                </li>
+                                <li class="dropdown-submenu"> <a tabindex="-1" href="#"> <i class="fa fa-bars"></i>
+                                        &nbsp;&nbsp;MBC</a>
+                                    <ul class="dropdown-menu">
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;MBC Process
+                                                Flow</a> </li>
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;How to map
+                                                the MBC Staff for MBC Point?</a> </li>
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;How to Enter
+                                                MBC Transaction in software?</a> </li>
+                                    </ul>
+                                </li><br>
+
+                                <li class="dropdown-submenu"> <a tabindex="-1" href="#"> <i class="fa fa-bars"></i>
+                                        &nbsp;&nbsp;Vault</a>
+                                    <ul class="dropdown-menu">
+                                        <li> <a href="?pid=vault_flow"> <i class="fa fa-stack-exchange"></i>
+                                                &nbsp;&nbsp;Vault Process</a> </li>
+                                        <!-- <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;How to enter Vault transaction from CE View?</a> </li>
+        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;How to enter Information in Cashier View?</a> </li>
+        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;How to enter Vault Cash Out Entry?</a> </li>-->
+                                    </ul>
+                                </li>
+                                <li class="dropdown-submenu"> <a tabindex="-1" href="#"> <i
+                                            class="fa fa-bars"></i>&nbsp;&nbsp;BDS Application</a>
+                                    <ul class="dropdown-menu">
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;Process
+                                                Flow</a> </li>
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;Manual for
+                                                Mobile Application Operations</a> </li>
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;How to enter
+                                                Information in Cashier View?</a> </li>
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;Manual for
+                                                Web Applications Operations</a> </li>
+                                        <li> <a href="?pid=sr_bds"> <i class="fa fa-stack-exchange"></i>
+                                                &nbsp;&nbsp;Reconciliation Process</a> </li>
+                                    </ul>
+                                </li>
+                                <li class="dropdown-submenu"> <a tabindex="-1" href="#"> <i class="fa fa-bars"></i>
+                                        &nbsp;&nbsp;IT Team </a>
+                                    <ul class="dropdown-menu">
+
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;Hardware
+                                                Helpdesk </a> </li>
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;Incident
+                                                Management </a> </li>
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;Network Issue
+                                                / Software Slow </a> </li>
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;FAQ </a>
+                                        </li><br />
+                                        <li> <a href="#"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;Blog </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="dropdown-submenu"> <a tabindex="-1" href="#"> <i class="fa fa-bars"></i>
+                                        &nbsp;&nbsp;IT Policy </a>
+                                    <ul class="dropdown-menu">
+
+                                        <li> <a href="?pid=cmdvision"> <i class="fa fa-stack-exchange"></i>
+                                                &nbsp;&nbsp;CMD Technology Vision 2012-13 </a> </li>
+                                        <li> <a href="?pid=swplan"> <i class="fa fa-stack-exchange"></i>
+                                                &nbsp;&nbsp;Software Implementation Plan</a> </li>
+                                        <li> <a href="?pid=faq_sop"> <i class="fa fa-stack-exchange"></i>
+                                                &nbsp;&nbsp;RADIANT FAQ & SOP</a> </li>
+                                        <li> <a href="?pid=itpolicy"> <i class="fa fa-stack-exchange"></i>
+                                                &nbsp;&nbsp;Hardware & Software Details </a> </li>
+                                        <li> <a href="?pid=stakeholder"> <i class="fa fa-stack-exchange"></i>
+                                                &nbsp;&nbsp;Stake Holders Details </a> </li>
+                                        <li> <a href="?pid=itteam"> <i class="fa fa-stack-exchange"></i> &nbsp;&nbsp;IT
+                                                Team Members</a> </li>
+                                        <li> <a href="?pid=apk_files"> <i class="fa fa-stack-exchange"></i>
+                                                &nbsp;&nbsp;Android Apps Setup Files (.apk)</a> </li>
+                                    </ul>
+                                </li>
+                                <li class="dropdown-submenu"> <a tabindex="-1" href="#" onClick="view_isms_log();"> <i
+                                            class="fa fa-bars"></i> &nbsp;&nbsp;ISMS Policy </a>
+                                </li>
+                                <li> <a tabindex="-1" href="?pid=erp"> <i class="fa fa-bars"></i> &nbsp;&nbsp;ERP
+                                        Enhancement Suggestions</a>
+                                </li>
+                            </ul>
+                        </li> <?php } ?>
+                    </ul>
+                </nav>
+            </div>
+            <!-- /.container -->
+
+        </div>
+        <!-- /.mainnav -->
+
+        <div class="content">
+
+
+            <?php
+    $file_names_inc = $res_page['folder_name'].'/'.$res_page['page_name'];
+//echo $file_names_inc;
+
+if($file_names_inc != '') {
+    include($file_names_inc);
+}
+
+if($pid == 'change_password') {
+    include('change_password.php');
+} elseif($pid == 'clientrep1') {
+    include('client_completion1.php');
+} elseif($pid == 'view_bffo1') {
+    include('view_misreports_bfo1.php');
+} elseif($pid == 'dcollect1') {
+    include('daily_collection2.php');
+} elseif($pid == 'gmis2') {
+    include('view_misreports1.php');
+} elseif($pid == 'vtranslog1') {
+    include('view_translogs1.php');
+} elseif($pid == 'modify') {
+    include('modify_daily_trans.php');
+} elseif($pid == 'sr_recon') {
+    include('sr_recon.php');
+} elseif($pid == 'sr_bds') {
+    include('sr_bds.php');
+} elseif($pid == 'cutof_time') {
+    include('SoftwareUserGuide/cutof_time.php');
+} elseif($pid == 'float_recon') {
+    include('float_recon.php');
+} elseif($pid == 'vault_flow') {
+    include('SoftwareUserGuide/vault_process_flow.php');
+} elseif($pid == 'erp') {
+    include('SoftwareUserGuide/erp_enhance.php');
+} elseif($pid == 'bds_console') {
+    include('bds_frontend_console.php');
+} elseif($pid == 'vault_console') {
+    include('vault_reset_console.php');
+} elseif($pid == 'daily_missed_console') {
+    include('daily_missed_console.php');
+} elseif($pid == 'daily_mail_console') {
+    include('daily_mail_console.php');
+} elseif($pid == 'all_region_dupload') {
+    include('Transactions/all_region_upload_excel.php');
+} elseif($pid == 'all_region_dupload_bajaj') {
+    include('Transactions/all_region_upload_bajaj.php');
+} elseif($pid == 'bulk_points_mod') {
+    include('bulk_points.php');
+} elseif($pid == 'EmpDocsMove') {
+    include('employeeDocsMove.php');
+} elseif($pid == 'cons_otp_manual') {
+    include('view_otp_console.php');
+} elseif($pid == 'axis_console_api') {
+    include('axis_console.php');
+} elseif($pid == 'erp_hcid_update') {
+    include('console_erp_db_hcid_update.php');
+} elseif($pid == 'QrReportTrans') {
+    include('qrcode_daily_report.php');
+}
+?>
+        </div>
+        <!-- .content -->
+
+    </div>
+    <!-- /#wrapper -->
+
+    <footer class="footer">
+        <div class="container">
+            <div class="pull-right" style="text-align:right; float:right; margin-top: 7px;">Powered By </div>
+            <div style="clear:both;"></div>
+            <p class="pull-right" style="margin-top: 9px;"><a href="https://radiantcashservices.com/"
+                    target="_blank"><img src="img/footre_logos.jpg" alt="" /></a></p>
+            <div style="clear:both;"></div>
+            <?php if($user == 'rpfprd' || $user == 'rpfhrd') {
+            } else {?>
+            <div class="pull-left "
+                style="text-align:right; float:right; margin-top: 17px; font-weight:bold; color:#025797;  font-size:12px;">
+                Copy Rights Reserved &copy; Radiant Cash Management Services Ltd</div><?php } ?>
+
+
+
+
+
+            <div class="pull-left "
+                style="text-align:right; float:right; margin-top: 17px; width:100%; font-weight:bold; color:#037dd2; font-size:12px;">
+                <div align="left">Programmed to deliver best performance using Google chrome, Firefox &amp; Best Viewed
+                    in 1024 X 768 or 1280 X 720 Resolution </div>
+                <div style="float:right; width:17%;">Terms of use | Privacy Policy</div>
+            </div>
+
+            <!-- 
+     
+     -->
+
+        </div>
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+================================================== -->
+    <!-- Core JS -->
+
+    <!--[if lt IE 9]>
+<script src="./js/libs/excanvas.compiled.js"></script>
+<![endif]-->
+
+    <!-- Plugin JS -->
+    <script src="js/plugins/flot/jquery.flot.js"></script>
+    <script src="js/plugins/flot/jquery.flot.tooltip.min.js"></script>
+    <!--<script src="js/plugins/flot/jquery.flot.pie.js"></script>-->
+    <script src="js/plugins/flot/jquery.flot.resize.js"></script>
+
+    <!-- App JS -->
+    <script src="js/mvpready-core.js"></script>
+    <script src="js/mvpready-admin.js"></script>
+
+    <!-- Plugin JS -->
+    <!--<script src="js/demos/flot/line.js"></script> 
+<script src="js/demos/flot/pie.js"></script> 
+<script src="js/demos/flot/auto.js"></script> -->
+    <script src="tree_view/jquery.tabelizer.js"></script>
+    <script type="text/javascript" src="js/chosen.jquery.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap.min.css">
+    <script type="text/javascript">
+    /*if(window.top==window) {
+	setInterval(function() {
+		var r = confirm("Are you sure you want to delete this record?");
+	if (r == true) {
+		$.ajax({
+			type: "POST",
+			url: "ajax/delete_data.php",
+			data: 'delate_id='+delate_id+'&del_tab='+del_tab,
+			success: function(msg){
+			}
+		});
+		
+   	//alert("Message to alert every 5 seconds");
+	 window.setTimeout('location.reload()'); 
+	}
+	else {
+		alert('BB');
+	}
+}, 3000);
+   //
+}*/
+
+
+    function delete_data(delate_id, del_tab) {
+        var r = confirm("Are you sure you want to delete this record?");
+        if (r == true) {
+            $.ajax({
+                type: "POST",
+                url: "CommonReference/delete_data.php",
+                data: 'delate_id=' + delate_id + '&del_tab=' + del_tab,
+                success: function(msg) {
+
+                    if (msg == 'Suc') {
+                        $('.del_msg').css('display', '');
+                        $('#delete_data' + delate_id).html('');
+                    }
+                }
+            });
+        }
+    }
+
+    function view_isms_log() {
+        $.ajax({
+            type: "POST",
+            url: "isms_update.php",
+            success: function(msg) {
+                if (msg == 'Suc') {
+                    window.open('isms_index.php?a=1', '_blank');
+                }
+            }
+        });
+    }
+
+    function delete_data1(delate_id, del_tab, serv_type) {
+        var r = confirm("Are you sure you want to delete this record?");
+        if (r == true) {
+            $.ajax({
+                type: "POST",
+                url: "ajax/delete_data.php",
+                data: 'delate_id=' + delate_id + '&del_tab=' + del_tab,
+                success: function(msg) {
+                    if (msg == 'Suc') {
+                        $('.del_msg').css('display', '');
+                        setTimeout(function() {
+                            $('.message_cu').fadeOut('fast');
+                        }, 3000);
+                        $('#delete_data_' + serv_type + delate_id).html('');
+                    }
+                }
+            });
+        }
+    }
+
+    function change_pwd() {
+        $('.modal-dialog').css('width', '600px');
+        $('.locad_change').css('display', '');
+    }
+
+    /*setTimeout(function(){
+    	$.ajax({
+    		type: "POST",
+    		url: "ajax/load_data.php",
+    		data: 'pid=time_out',
+    		success: function(msg){
+    			var x = location.href;
+    			x1 = x.split('?');
+    			window.location.href = x1[0]+'login.php'
+    		}
+    	});
+    	
+     //  window.location.reload(1);
+    }, 1200000);*/
+    </script>
+</body>
+
+</html>
+<?php
+//mysql_close($conn1);
+?>
