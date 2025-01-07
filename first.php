@@ -1,833 +1,480 @@
-<link rel="stylesheet" type="text/css" href="js/plugins/img_crop/css/imgareaselect-animated.css" />
-<script type="text/javascript" src="js/plugins/img_crop/js/1.7.1_jquery.min.js" ></script>
-<script type="text/javascript" src="js/plugins/img_crop/js/jquery.imgareaselect.pack.js" ></script>
-<script type="text/javascript" src="js/plugins/img_crop/js/script.js" ></script>
-
-  <?php
-if(!isset($_SESSION)) {	session_start(); }
-$id = $_REQUEST['id'];
-$nav = $_REQUEST['nav'];
-$region_load = $_REQUEST['region'];
-$state = $_REQUEST['state'];
-$aemp_id = $_REQUEST['aemp_id'];
-$name1 = $_REQUEST['ce_name'];	
-$url = $_REQUEST['url'];
-$ace_id = $_REQUEST['ace_id'];
-$id = $_REQUEST['id'];
-include('CommonReference/date_picker_link.php');
-require_once __DIR__ . '/../DbConnection/dbConnect.php';
-
-
-$id=$_REQUEST['id'];
-$cont_type = 0;
-$result = 'RCS00001';
-
-?>
-<style type="text/css">
-#id_proof_chosen, #bank_acc_chosen, #branch_id_chosen, #emp_current_status_chosen,#emp_bank_chosen {
-	width:100% !important;
-}
-</style>
-
-<div class="container">
-
-      <div class="row">
-
-        <div class="col-md-12 col-sm-11">
-
-          <div class="portlet">	    
-
-            <h3 class="portlet-title">
-              <u>KYC Document Details </u>
-            </h3>
-             <?php if($nav!='') { ?>
-               <div class="message_cu">
-              <div style="padding: 7px;" class="alert <?php if($nav=='2_2_1' || $nav=='2_2_2' || $nav=='2_2_3' || $nav=='2_2_4') { echo 'alert-danger'; } else { echo 'alert-success'; } ?>" align="center">
-                  <a aria-hidden="true" href="../HRMS/components-popups.html#" data-dismiss="alert" class="close">×</a>
-                  <b><?php
-                  $status_cu = array('2_1_1'=>'New Document Upload Sucessfully',
-									 '2_2_1'=>'Sorry, Please Try Again ',
-									 '2_5'=>'"CE ID: '.$id1.', Already Available, Sorry Please Try Again');
-                  echo $status_cu[$nav];
-                  ?> </b>
-              </div>
-              </div>
-              <?php }
-			  	  ?>	
-                  <div class="tab-content" id="myTab1Content">
-
 <?php
-if($id != ''){?>
-	 <form action="CommonReference/hrms_add_details.php?pid=emp_doc" method="post" enctype="multipart/form-data" name="form1" id="form1">
-	 <input type="hidden" name="doc_id" id="doc_id" value="<?php echo $id;?>">
-                        
-							<?php
-							$nav=$_REQUEST['nav'];
-							if(isset($nav))
-							{
-							?>  
-							<?php
-							}
-							 $sqlt="select * from hrms_empdet where r_id=".$id." and status!='N'"; 
-							$row=mysql_query($sqlt);
-							$row1=mysql_fetch_object($row);
-							?>
-                            <div id="shop_details_div">
-							
-							  <input type="hidden" name="doc_empid" id="doc_empid" value="<?php echo $row1->emp_id;?>">
-                 <table cellpadding="0" cellspacing="0" border="0" align="center" width="100%" class="shop_details"  >
-                  <tr>
-                    <td colspan="6" align="center"><label style="color:#C12E2A; font-weight:bold;"> DETAILS</label></td>
-                  </tr>
-                  <tr>
-                    <td  width="10%"><label>Employee Id</label></td>
-                    <td align="center"width="3%"><b>:</b></td>
-                    <td width="40%"><?php echo $row1->emp_id; ?></b></td>
-                    <td><label id="point_type"></label></td>
-                    <td align="right"><label>Employee Name</label></td>
-                    <td align="center" width="3%"><b>:</b></td>
-                    <td><?php echo $row1->cname; ?></td>
-                    <td align="center"></b></td>
-                    <td><label id="point_pin"></label></td>
-                  </tr>
-                  <tr>
-                    <td ><label>Employee Designation</label></td>
-                    <td align="center" width="3%"><b>:</b></td>
-                    <td><?php echo $row1->pdesig; ?></td>
-                    <td><label id="cust_code"></label></td>
-                    <td align="right"><label>Employee Location</label></td>
-                    <td align="center"><b>:</b></td>
-                    <td><?php echo $row1->plocation; ?></td>
-                    <td align="center"></td>
-                    <td><label id="point_phone"></label></td>
-                  </tr>
-                </table>
-              <div class="caption">
-                                	 <p>
-                                      	<!--<a href="javascript:;" class="btn btn-success btn-sm btn-sm" id="ce_proof" onclick="AddRow(this);">Add Row</a>&nbsp;
-                                        <a href="javascript:;" class="btn btn-warning btn-sm btn-sm" id="ce_proofs" onclick="DeleteRow(this);">Delete Row</a>-->
-                                     </p>
-                                </div>
-                                <div class="table-responsive">
-                                    <table class="table table-striped table-bordered thumbnail-table" width="100%" id="ce_proof1">
-                                        <thead>
-                                            <tr>
-                                                <th></th>
-                                                <th>SNo</th>
-                                                <th>Document Upload</th>
-                                                <th>Card No</th>
-                                                <th>Proof Document</th>
-                                                <th>Proof Document Name</th>
-                                                <th>Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                                                                	<tr>
-                                            	<td align="center"><input type="checkbox" class="chkbox"/></td>
-                                                <td align="center">1<input type="hidden" value="" name="ce_proof_aid[]"/></td>
-                                                <td>
-                                                	<select id="id_proof" name="id_proof" class="form-control parsley-validated chosen-select" required  onchange="load_verify();">
-                                        			 <option value="" selected="selected">Select</option>
-                                  <option value="01">Education Documents</option>
-                                  <option value="02">Experience Documents</option>
-                                  <option value="03">Resume</option>
-								  <option value="04">Pan Card</option>
-								  <option value="05">Voter Card</option>
-								  <option value="06">Aadhar Card</option>
-                                  <option value="07">Driving License</option>
-                                  <option value="08">Address Proof</option>
-                                  <option value="09">Photo</option>
-                                  <option value="10">Background Verification</option>
-                                  <option value="11">Annual Post Employment Verification</option>
-                                  <option value="12">Police Verification Letter</option>
-                                <!--  <option value="13"> Verification</option>
-                                  <option value="14"> Cash Pickup Agreement</option>-->
-                                  <option value="14"> Service Provider Agreement</option>
-                                   <option value="15">Employee application</option>
-                                  <option value="16">Induction Trainning Form</option>
-                                  <option value="17">Recruitment process report</option>
-                                  <option value="18">Bank Passbook/Cancelled Cheque Leaf</option>
-                                   <option value="19">MBC Agreement</option>
-								    <option value="20">Signature</option>
-								    <option value="21">Appointment Order</option>
-									<option value="22">Gun License</option>
-									<option value="23">Renewal Letter(SPA)</option>
-									<option value="24">Court Record Check</option>
-									<option value="25">COD</option>
+	//echo "success"; 
+	// require_once 'Classes/PHPExcel.php';
+	// //require_once 'PHPExcel/Classes/PHPExcel.php';
+    // require_once 'Classes/PHPExcel/IOFactory.php';
+	// include 'Classes/PHPExcel/Writer/Excel2007.php';
+	// include 'HRMS_Files/excel_user_defined_function.php';
+	include('DbConnection/dbConnect.php');
+	$pid = $_REQUEST['pid'];
+	require 'dependencies/vendor/autoload.php';
 
-                                    				</select>
-                                                </td>
-                                                <td>
-                                                	<input type="text" id="proof_no" name="proof_no" class="form-control parsley-validated" value="" placeholder="Identity Proof No" >
-                                                </td>
-                                                <td align="center">
-												<!--<input id="proof_doc" type="file" name="proof_doc[]" />-->
-												<input id="uploadImage" type="file" accept="image/jpeg" name="image" />
-												
+	use PhpOffice\PhpSpreadsheet\Spreadsheet;
+	use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+	use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
+	use PhpOffice\PhpSpreadsheet\Style\Alignment;
+	if($pid =='hrms_pancard_details'){
+		//echo "fail"; 
+	
+	 $region = $_REQUEST['region']; 
+	$date_excel = $from_date;
+	
+// $report_name = $_POST['report_name'];
+ 
+  // $branch_name=$_REQUEST['branch_name'];
+ if($region!=''){
 
-												<input id="proof_doc" type="file" accept=".pdf" name="proof_doc" />
-<span id="error_msg" style="color:red;">Please Upload only pdf files</span>
-												<!-- hidden inputs -->
-		<input type="hidden" id="x" name="x" />
-		<input type="hidden" id="y" name="y" />
-		<input type="hidden" id="w" name="w" />
-		<input type="hidden" id="h" name="h" />
-											</td>
-                                                <td></td>
-                                                <td class="text-center"><a href="#" class="disableClick" rel="0%hrm_info%0" onclick="delete_data_row(this);" ><i class="fa fa-trash" title="Remove"></i></a></td>
-                                            </tr>
-                                                                                </tbody>
-                                    </table>
-									<div id="modal" class="mymodel" align="center" style="display:none;">
-		 <div class="modal-content crop" >
-      <div class="modal-header">
-		 <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="show1()"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">Crop Image</h4>
-		</div>
-		<div class="modal-body">
-		<img id="uploadPreview" align="center"  style="display:none;" />		 
-      </div>  
-	  <!--<div class="modal-footer">
-<!-- <button type="button" class="btn btn-default" data-dismiss="mymodel" onclick="show1()">Close</button>
-        <button type="button" class="btn btn-primary" onclick="show2()">Crop</button>	  
-	   </div>-->
-	   </div>
-	   </div>
-                                </div>
-                               
-                               <div class="clear"></div>
-                                
-                                <div class="form-group col-sm-3">
-                                    <input type="hidden" name="id" value="" />
-                                    <input type="hidden" name="emp_id" value="" />
-                                    <input type="hidden" name="ce_id" value="" />
-                                    <input type="hidden" name="ce_name" value="" />
-                                    
-                                  <button type="submit" name="submit" id="submit" class="btn btn-danger search_btn" style="margin-top: 10px;">Save Employee Documents</button>
-                               </div>
-                           </div>
-	        			</form>
-                  	</div> <!-- /.Identity tab-pane -->
 
-                          <div class="clear"></div>
-                    
-                    <div align="center" class="page_title"><h3>Uploaded Documents</h3> </div>
-                    
-<table  border="0" align="center" cellpadding="2" cellspacing="0" class="table table-hover table-nomargin table-striped table-bordered " width="100%" id='to_load_doc_grid'>
-                              <thead>
-                                  <tr>
-                                    <th><div align="center">Doc ID  </div></th>
-                                    <th><div align="center"><strong>Document Name </strong></div></th>
-                                    <th><div align="center"><strong>Document Remarks </strong></div></th>
-                                    <th><div align="center"><strong>Document Path </strong></div></th>
-                                    <th><div align="center"><strong>Download</strong></div></th>
-                                    <th><div align="center"><strong>Delete </strong></div></th>
-                                  </tr>
-								  </thead>
-								  <tbody>
-                                    <?php
-									
-									  $doc=array("01"=>"Education Documents","02"=>"Experience Documents","03"=>"Resume","04"=>"Pan Card Documents","05"=>"Voter Card
-","06"=>"Aadhar Card","07"=>"Driving License","08"=>"Address Proof","09"=>"Photo","10"=>"Background Verification","11"=>"Annual Post Employment Verification","12"=>"Police Verification","13"=>"Verification","14"=>"Service Provider Agreement","15"=>"Employee application","16"=>"Induction Trainning Form","17"=>"Recruitment process report","18"=>"Bank Passbook/Cancelled Cheque Leaf","19"=>"MBC Agreement","20"=>"Signature","21"=>"Appointment Order","22"=>"Gun License","23"=>"Renewal Letter(SPA)","24"=>"Court Record Check","25"=>"COD");
-								
-									$i=1;
-									$sqls1="select * from hrms_empdoc where r_id=".$id." and status='Y'";
-									$qs1=mysql_query($sqls1);
-									while($rw1=mysql_fetch_array($qs1))
-									{
-										
-										 
-										
-										//echo $doc[$doc_type]."vimal";
-									?>
-                                  <tr id="<?php echo $rw1['r_id']; ?>" >
-                                    <td><div align="center"><?php echo $i; ?></div></td>
-                                    <td><div align="center"><?php echo $doc[$rw1['doc_type']]; ?></div></td>
-                                    <td><div align="center"><?php echo $rw1['doc_remarks']; ?></span></div></td>
-                                    <td><div align="center"><?php echo $rw1['doc_path']; ?></div></td>
-                                    <td><div align="center"><a href="<?php if($rw1['doc_path']!="") { if(file_exists("emp_docs/".$rw1['doc_path'])) { echo "emp_docs/".$rw1['doc_path']; } else { echo "http://49.249.173.254/rcms/emp_docs/".$rw1['doc_path']; } } else { echo "#"; } ?>" target="_blank"><!--<img src="images/docs.png" width="20" height="21" border="0" /> --><span class="label label-secondary demo-element">View</span></a></div></td>
-                                     <td><div align="center"> <span onclick="delete_data(<?php echo $rw1['doc_id']; ?>,51)"
-							class="label label-danger demo-element">Delete</span> </div></td>
-                                  </tr>
-                                  <?php
-								  $i++;
-								  }
-								  ?>
-                                </tbody>
-                              </table>
-</div>
+ 	  $branch_id ="and region=".$region."";
+	 
+	 }else{
+		 
+	
+		  $branch_id ="and region!=''"; 
+		 
+		 }
+		 
+		 	$desig=array("EXE"=>"Exectiuve","CE"=>"Cash Executive","MBC"=>"MBC","CVC"=>"Cash Van Custodian","GN"=>"Gunman","DR"=>"Driver",
+"LD"=>"Loader","PR"=>"Processor","AM"=>"Assistant Manager","RM"=>"Risk Manager","MGR"=>"Manager","CHR"=>"Cashier","SE"=>"Senior Executive",
+"BH"=>"Branch Head","RH"=>"Regional Head","ACHR"=>"Assistant cashier","DM"=>"Deputy Manager","SRM"=>"Senior Risk Manager","SMGR"=>"Senior Manager",
+"ARM"=>"Assistant Risk Manager","SMBC"=>"Senior MBC","OH"=>"Office Assistant/HouseKeeping ","GM"=>"General Manager","AGM"=>"Asst. General Manager","SV"=>"Supervisor","DIR"=>"Director","CFO"=>"Chief Finance Officer","CTO"=>"Chief Technology Officer","GUD"=>"Guards","CVCE"=>"CVCE");
 
-          </form>
-<?php }
+$dep=array("OP"=>"Operations","IT"=>"Information technology","BD"=>"Business Development","DM"=>"Data Management","CR"=>"Customer Relation
+","BILL"=>"Billing","AF"=>"Accounts & Finance","AUD"=>"Audit","BNK"=>"Banking","ADM"=>"Admin","HR"=>"Human Resource","PAY"=>"Payroll","VLT"=>"Vault");
+ 
+ $visib = array('Applied', 'Not Applied', '');
+	// $branch_id =$_POST['branch']; 
+	   $from_date = date('Y=m-d',strtotime($_REQUEST['from_date'])); 
+	     $to_date = date('Y-m-d',strtotime($_REQUEST['to_date']));
+//echo	$branch_id = implode(",",$_POST['branch']); die;
+	//$location_id = implode(",",$_POST['location']);
+	$where = "";
+$last_cell='O';$mid_cell='H';
+$spreadsheet = new Spreadsheet();
+// Set document properties
+$spreadsheet->getProperties()->setCreator("Maarten Balliauw")
+             ->setLastModifiedBy("Maarten Balliauw")
+             ->setTitle("Office 2007 XLSX Test Document")
+             ->setSubject("Office 2007 XLSX Test Document")
+             ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
+             ->setKeywords("office 2007 openxml php")
+             ->setCategory("Test result file");
+
+		$spreadsheet->getActiveSheet()->setTitle("CE");
+		// $spreadsheet->getActiveSheet()->getDefaultStyle()->applyFromArray(array(
+		// 				'fill' => array(
+		// 					'type'  => PHPExcel_Style_Fill::FILL_SOLID,
+		// 					'color' => array('argb' => 'FFFFFF')
+		// 				),
+		// 			)
+		// 		);
+		$spreadsheet->getActiveSheet()->mergeCells("A1:O1");
+		///$spreadsheet->getActiveSheet()->setCellValue("A1","Radiant Cash Management Service-Employee New Joiners Details- ".date('M-Y'),strtotime($from_date));
+		//SetCellFont("A1","Arial","10",true,false,"none","000000");
+		$spreadsheet->getActiveSheet()->mergeCells("A2:O2");
+		$spreadsheet->getActiveSheet()->setCellValue("A2","Radiant Cash Management Service");
+		//$spreadsheet->getActiveSheet()->mergeCells("A1:A2");
+	//	$spreadsheet->getRowDimension('1')->setRowHeight(-1);
+	
+	/*$gdImage = imagecreatefromjpeg('img/logo.png');
+		$spreadsheet->getActiveSheet()->mergeCells('A1:'.$last_cell.'1');
+		$objDrawing = new PHPExcel_Worksheet_Drawing();
+		$objDrawing->setPath('img/logo.png');
+		$objDrawing->setCoordinates($mid_cell.'1');*/
+	
+	
+		//$objDrawing->setWidth('50');
+		//$objDrawing->setHeight('50');
+		$spreadsheet->getActiveSheet()->getRowDimension('1')->setRowHeight(80);
+		//$spreadsheet->getActiveSheet()->getColumnDimension('A')->setWidth(100);
+		//$offsetX =1500 - $objDrawing->getWidth();
+		//$objDrawing->setOffsetX($offsetX);
+		//$objDrawing->setWorksheet($spreadsheet->getActiveSheet());
+
+		$spreadsheet->getActiveSheet()->mergeCells("A2:O2");
+		$spreadsheet->getActiveSheet()->setCellValue("A3","SNo");
+		//SetCellFont("A2:G3","Arial","10",true,false,"none","000000");
+		$spreadsheet->getActiveSheet()->setCellValue("A3","SNo");
+		$spreadsheet->getActiveSheet()->setCellValue("B3","Emp ID");
+		$spreadsheet->getActiveSheet()->setCellValue("C3","Emp Name");
+		$spreadsheet->getActiveSheet()->setCellValue("D3","Department");
+		$spreadsheet->getActiveSheet()->setCellValue("E3","Designation");
+		$spreadsheet->getActiveSheet()->setCellValue("F3","Location");
+		$spreadsheet->getActiveSheet()->setCellValue("G3","Pancard No");
+		$spreadsheet->getActiveSheet()->setCellValue("H3","Account No");
+		$spreadsheet->getActiveSheet()->setCellValue("I3","Bank Name");
+		$spreadsheet->getActiveSheet()->setCellValue("J3","Branch Name");
+		$spreadsheet->getActiveSheet()->setCellValue("K3","IFSC Code");
+		$spreadsheet->getActiveSheet()->setCellValue("L3","Aadhar Card No");
+		$spreadsheet->getActiveSheet()->setCellValue("M3","ESI No");
+		$spreadsheet->getActiveSheet()->setCellValue("N3","EPF No");
+		$spreadsheet->getActiveSheet()->setCellValue("O3","UAN No");
+		//SetBackgroundColor("G3","FF0000");
+	//	SetAlignment("A1:O3","horizontal_center","vertical_center");
+
+		cellcenterv("A1:O3");
+		cellcenterh("A1:O3");
+	$data_array = array();
+	
+//	echo " select * from hrms_mpdet where approved_date between '".$from_date."' and '".$to_date."' and region='".$branch_id."' "; die;
+	
+	//echo" select * from hrms_empdet where approved_date between '".$from_date."' and '".$to_date."'  ".$branch_id." and status='Y' "; die;
+//echo 	" select * from hrms_empdet where approved_date between '".$from_date."' and '".$to_date."'  ".$branch_id." and status='Y' "; die;
+	//echo " select * from hrms_empdet where  status='Y' $branch_id  "; die;
+		 $sql=mysql_query(" select * from hrms_empdet where  status='Y' $branch_id and (pdesig1='CE' or pdesig1='CCE' or pdesig1='CVCE') and wstatus!='Dormant' ");
+		 
+
+//echo " select pay.emp_id,pay.emp_name,pay.emp_doj,pay.designation,pay.department,pay.m_days,pay.sal_days,pay.total_present,pay.sundays,pay.holidays,pay.tele_allce,pay.oth_allce,emp.plocation,emp.mobile1,emp.dob,emp.father_name,emp.pan_card_no,emp.bank_name,emp.account_no,emp.branch_name,emp.ifsc_code,emp.gross_sal  from hrms_attendance pay join hrms_empdet emp on pay.emp_id=emp.emp_id where pay.attendance_month_year = '".$from_date."' and pay.branch='".$branch_id."' and pay.status='Y'group by emp.emp_id "; die;
+		$sno=1;
+		$rowcont = 4;
+		//SetWrapText("A3:O3");
+		$spreadsheet->getActiveSheet()->getStyle("A3:O3")->getAlignment()->setWrapText(true);
+			if(mysql_num_rows($sql) > 0){
+			while($row = mysql_fetch_array($sql)){
+			 	$total_working_days = $row['total_present'] + $row['sundays'] + $row['holidays']; 
+				$spreadsheet->getActiveSheet()->setCellValue("A".$rowcont,$sno);
+				$spreadsheet->getActiveSheet()->setCellValue("B".$rowcont,$row['emp_id']);
+				$spreadsheet->getActiveSheet()->setCellValue("C".$rowcont,$row['cname']);
+				$spreadsheet->getActiveSheet()->setCellValue("D".$rowcont,$dep[$row['pdesig']]);
+				$spreadsheet->getActiveSheet()->setCellValue("E".$rowcont,$desig[$row['pdesig1']]);
+				$spreadsheet->getActiveSheet()->setCellValue("F".$rowcont,$row['plocation']);
+				$spreadsheet->getActiveSheet()->setCellValue("G".$rowcont,$row['pan_card_no']);//account_no
+				$spreadsheet->getActiveSheet()->setCellValue("H".$rowcont,$row['account_no']);
+				 if($row['pan_card_no']=="Applied" ){
+SetBackgroundColor("G".$rowcont,"CD5C5C");}
+ if($row['account_no']=="" || $row['account_no']=="Applied" ){
+SetBackgroundColor("H".$rowcont,"CD5C5C");}
+
+
+				$spreadsheet->getActiveSheet()->setCellValue("I".$rowcont,$row['bank_name']);
+				$spreadsheet->getActiveSheet()->setCellValue("J".$rowcont,$row['branch_name']);
+				$spreadsheet->getActiveSheet()->setCellValue("K".$rowcont,$row['ifsc_code']);
+				$spreadsheet->getActiveSheet()->setCellValue("L".$rowcont,$row['aadhar_card_no']);
+				$spreadsheet->getActiveSheet()->setCellValue("M".$rowcont,$row['esi_no']);//account_no
+				$spreadsheet->getActiveSheet()->setCellValue("N".$rowcont,$row['epf_no']);
+			    $spreadsheet->getActiveSheet()->setCellValue("O".$rowcont,$row['uan_no']);//account_no
+				
+
+
+				$sno++;
+				$rowcont++;
+			}
+	
+		//	//SetCellFont("A".$rowcont.":BG".$rowcont.,"Arial","10",true,false,"none","000000");
+			//$spreadsheet->getActiveSheet()->setCellValue("AD".$rowcont,'=SUM(AD4:AD'.($rowcont-1).')');
+			//$spreadsheet->getActiveSheet()->setCellValue("AE".$rowcont,'=SUM(AE4:AE'.($rowcont-1).')');
+			//$spreadsheet->getActiveSheet()->setCellValue("AF".$rowcont,'=SUM(AF4:AF'.($rowcont-1).')');
+			}
+			
+			//SetCellborder("A1","");
+		$spreadsheet->createSheet();
+		$spreadsheet->setActiveSheetIndex(1);//date('H:i',strtotime($trans_date)
+		$spreadsheet->getActiveSheet()->setTitle("RPF");
+		
+			$spreadsheet->getActiveSheet()->mergeCells("A1:H1");
+		///$spreadsheet->getActiveSheet()->setCellValue("A1","Radiant Cash Management Service-Employee New Joiners Details- ".date('M-Y'),strtotime($from_date));
+		//SetCellFont("A1","Arial","10",true,false,"none","000000");
+		$spreadsheet->getActiveSheet()->mergeCells("A2:H2");
+		$spreadsheet->getActiveSheet()->setCellValue("A2","Radiant Cash Management Service");
+		//$spreadsheet->getActiveSheet()->mergeCells("A1:A2");
+	//	$spreadsheet->getRowDimension('1')->setRowHeight(-1);
+
+	/*  $gdImage = imagecreatefromjpeg('img/logo.png');
+		$spreadsheet->getActiveSheet()->mergeCells('A1:'.$last_cell.'1');
+		$objDrawing = new PHPExcel_Worksheet_Drawing();
+		$objDrawing->setPath('img/logo.png');
+		$objDrawing->setCoordinates($mid_cell.'1'); */
+
+		//$objDrawing->setWidth('50');
+		//$objDrawing->setHeight('50');
+		$spreadsheet->getActiveSheet()->getRowDimension('1')->setRowHeight(80);
+		//$spreadsheet->getActiveSheet()->getColumnDimension('A')->setWidth(100);
+		//$offsetX =1500 - $objDrawing->getWidth();
+		//$objDrawing->setOffsetX($offsetX);
+		//$objDrawing->setWorksheet($spreadsheet->getActiveSheet());
+		$spreadsheet->getActiveSheet()->mergeCells("A2:O2");
+		//SetCellFont("A2:O3","Arial","10",true,false,"none","000000");
+		$spreadsheet->getActiveSheet()->setCellValue("A3","SNo");
+		$spreadsheet->getActiveSheet()->setCellValue("B3","Emp ID");
+		$spreadsheet->getActiveSheet()->setCellValue("C3","Emp Name");
+		$spreadsheet->getActiveSheet()->setCellValue("D3","Department");
+		$spreadsheet->getActiveSheet()->setCellValue("E3","Designation");
+		$spreadsheet->getActiveSheet()->setCellValue("F3","Location");
+		$spreadsheet->getActiveSheet()->setCellValue("G3","Pancard No");
+		$spreadsheet->getActiveSheet()->setCellValue("H3","Account No");
+		$spreadsheet->getActiveSheet()->setCellValue("I3","Bank Name");
+		$spreadsheet->getActiveSheet()->setCellValue("J3","Branch Name");
+		$spreadsheet->getActiveSheet()->setCellValue("K3","IFSC Code");
+		$spreadsheet->getActiveSheet()->setCellValue("L3","Aadhar Card No");
+		$spreadsheet->getActiveSheet()->setCellValue("M3","ESI No");
+		$spreadsheet->getActiveSheet()->setCellValue("N3","EPF No");
+		$spreadsheet->getActiveSheet()->setCellValue("O3","UAN No");
+		//SetAlignment("A1:O3","horizontal_center","vertical_center");
+		cellcenterv("A1:O3");
+		cellcenterh("A1:O3");
+	$data_array = array();
+	
+//	echo " select * from hrms_mpdet where approved_date between '".$from_date."' and '".$to_date."' and region='".$branch_id."' "; die;
+	
+	//echo" select * from hrms_empdet where approved_date between '".$from_date."' and '".$to_date."'  ".$branch_id." and status='Y' "; die;
+//echo 	" select * from hrms_empdet where approved_date between '".$from_date."' and '".$to_date."'  ".$branch_id." and status='Y' "; die;
+	//echo " select * from hrms_empdet where  status='Y' $branch_id  "; die;
+		 $sql=mysql_query(" select * from hrms_empdet where  status='Y' $branch_id and (pdesig1='GUD' or pdesig1='DR' or pdesig1='GN' ) and wstatus!='Dormant' ");
+		 
+
+//echo " select pay.emp_id,pay.emp_name,pay.emp_doj,pay.designation,pay.department,pay.m_days,pay.sal_days,pay.total_present,pay.sundays,pay.holidays,pay.tele_allce,pay.oth_allce,emp.plocation,emp.mobile1,emp.dob,emp.father_name,emp.pan_card_no,emp.bank_name,emp.account_no,emp.branch_name,emp.ifsc_code,emp.gross_sal  from hrms_attendance pay join hrms_empdet emp on pay.emp_id=emp.emp_id where pay.attendance_month_year = '".$from_date."' and pay.branch='".$branch_id."' and pay.status='Y'group by emp.emp_id "; die;
+		$sno=1;
+		$rowcont = 4;
+		//SetWrapText("A3:O3");
+		$spreadsheet->getActiveSheet()->getStyle("A3:O3")->getAlignment()->setWrapText(true);
+	
+			if(mysql_num_rows($sql) > 0){
+			while($row = mysql_fetch_array($sql)){
+			 	$total_working_days = $row['total_present'] + $row['sundays'] + $row['holidays']; 
+				$spreadsheet->getActiveSheet()->setCellValue("A".$rowcont,$sno);
+				$spreadsheet->getActiveSheet()->setCellValue("B".$rowcont,$row['emp_id']);
+				$spreadsheet->getActiveSheet()->setCellValue("C".$rowcont,$row['cname']);
+				$spreadsheet->getActiveSheet()->setCellValue("D".$rowcont,$dep[$row['pdesig']]);
+				$spreadsheet->getActiveSheet()->setCellValue("E".$rowcont,$desig[$row['pdesig1']]);
+				$spreadsheet->getActiveSheet()->setCellValue("F".$rowcont,$row['plocation']);
+				$spreadsheet->getActiveSheet()->setCellValue("G".$rowcont,$row['pan_card_no']);
+				$spreadsheet->getActiveSheet()->setCellValue("H".$rowcont,$row['account_no']);
+		if($row['pan_card_no']=="Applied"){
+SetBackgroundColor("G".$rowcont,"CD5C5C");}
+if($row['account_no']=="Applied" || $row['account_no']==""){
+SetBackgroundColor("H".$rowcont,"CD5C5C");}
+
+				$spreadsheet->getActiveSheet()->setCellValue("I".$rowcont,$row['bank_name']);
+				$spreadsheet->getActiveSheet()->setCellValue("J".$rowcont,$row['branch_name']);
+				$spreadsheet->getActiveSheet()->setCellValue("K".$rowcont,$row['ifsc_code']);
+				$spreadsheet->getActiveSheet()->setCellValue("L".$rowcont,$row['aadhar_card_no']);
+				$spreadsheet->getActiveSheet()->setCellValue("M".$rowcont,$row['esi_no']);//account_no
+				$spreadsheet->getActiveSheet()->setCellValue("N".$rowcont,$row['epf_no']);
+			    $spreadsheet->getActiveSheet()->setCellValue("O".$rowcont,$row['uan_no']);//account_no
+
+				$sno++;
+				$rowcont++;
+			}
+	
+		//	//SetCellFont("A".$rowcont.":BG".$rowcont.,"Arial","10",true,false,"none","000000");
+			//$spreadsheet->getActiveSheet()->setCellValue("AD".$rowcont,'=SUM(AD4:AD'.($rowcont-1).')');
+			//$spreadsheet->getActiveSheet()->setCellValue("AE".$rowcont,'=SUM(AE4:AE'.($rowcont-1).')');
+			//$spreadsheet->getActiveSheet()->setCellValue("AF".$rowcont,'=SUM(AF4:AF'.($rowcont-1).')');
+			}
+			//SetCellborder("A1","");
+		$spreadsheet->createSheet();
+		$spreadsheet->setActiveSheetIndex(2);//date('H:i',strtotime($trans_date)
+		$spreadsheet->getActiveSheet()->setTitle("STAFF");
+		
+			
+			$spreadsheet->getActiveSheet()->mergeCells("A1:O1");
+		///$spreadsheet->getActiveSheet()->setCellValue("A1","Radiant Cash Management Service-Employee New Joiners Details- ".date('M-Y'),strtotime($from_date));
+		//SetCellFont("A1","Arial","10",true,false,"none","000000");
+		$spreadsheet->getActiveSheet()->mergeCells("A2:O2");
+		
+		//$spreadsheet->getActiveSheet()->mergeCells("A1:A2");
+	//	$spreadsheet->getRowDimension('1')->setRowHeight(-1);
+
+
+	/*$gdImage = imagecreatefromjpeg('img/logo.png');
+		$spreadsheet->getActiveSheet()->mergeCells('A1:'.$last_cell.'1');
+		$objDrawing = new PHPExcel_Worksheet_Drawing();
+		$objDrawing->setPath('img/logo.png');
+		$objDrawing->setCoordinates($mid_cell.'1'); */
+
+		//$objDrawing->setWidth('50');
+		//$objDrawing->setHeight('50');
+		$spreadsheet->getActiveSheet()->getRowDimension('1')->setRowHeight(80);
+		//$spreadsheet->getActiveSheet()->getColumnDimension('A')->setWidth(100);
+		//$offsetX =1500 - $objDrawing->getWidth();
+		//$objDrawing->setOffsetX($offsetX);
+	//	$objDrawing->setWorksheet($spreadsheet->getActiveSheet());
+		$spreadsheet->getActiveSheet()->mergeCells("A2:O2");
+		$spreadsheet->getActiveSheet()->setCellValue("A2","Radiant Cash Management Service");
+		//SetCellFont("A2:O3","Arial","10",true,false,"none","000000");
+		$spreadsheet->getActiveSheet()->setCellValue("A3","SNo");
+		$spreadsheet->getActiveSheet()->setCellValue("B3","Emp ID");
+		$spreadsheet->getActiveSheet()->setCellValue("C3","Emp Name");
+		$spreadsheet->getActiveSheet()->setCellValue("D3","Department");
+		$spreadsheet->getActiveSheet()->setCellValue("E3","Designation");
+		$spreadsheet->getActiveSheet()->setCellValue("F3","Location");
+		$spreadsheet->getActiveSheet()->setCellValue("G3","Pancard No");
+		$spreadsheet->getActiveSheet()->setCellValue("H3","Account No");
+		$spreadsheet->getActiveSheet()->setCellValue("I3","Bank Name");
+		$spreadsheet->getActiveSheet()->setCellValue("J3","Branch Name");
+		$spreadsheet->getActiveSheet()->setCellValue("K3","IFSC Code");
+		$spreadsheet->getActiveSheet()->setCellValue("L3","Aadhar Card No");
+		$spreadsheet->getActiveSheet()->setCellValue("M3","ESI No");
+		$spreadsheet->getActiveSheet()->setCellValue("N3","EPF No");
+		$spreadsheet->getActiveSheet()->setCellValue("O3","UAN No");
+		//SetAlignment("A1:O3","horizontal_center","vertical_center");
+		cellcenterv("A1:O3");
+		cellcenterh("A1:O3");
+	$data_array = array();
+	
+//	echo " select * from hrms_mpdet where approved_date between '".$from_date."' and '".$to_date."' and region='".$branch_id."' "; die;
+	
+	//echo" select * from hrms_empdet where approved_date between '".$from_date."' and '".$to_date."'  ".$branch_id." and status='Y' "; die;
+//echo 	" select * from hrms_empdet where approved_date between '".$from_date."' and '".$to_date."'  ".$branch_id." and status='Y' "; die;
+	//echo " select * from hrms_empdet where  status='Y' $branch_id  "; die;
+		 $sql=mysql_query(" select * from hrms_empdet where  status='Y' $branch_id and pdesig1!='CE' and pdesig1!='GN' and pdesig1!='GUD' and pdesig1!='DR' and pdesig1!='CCE' and wstatus!='Dormant' ");
+		 
+
+//echo " select pay.emp_id,pay.emp_name,pay.emp_doj,pay.designation,pay.department,pay.m_days,pay.sal_days,pay.total_present,pay.sundays,pay.holidays,pay.tele_allce,pay.oth_allce,emp.plocation,emp.mobile1,emp.dob,emp.father_name,emp.pan_card_no,emp.bank_name,emp.account_no,emp.branch_name,emp.ifsc_code,emp.gross_sal  from hrms_attendance pay join hrms_empdet emp on pay.emp_id=emp.emp_id where pay.attendance_month_year = '".$from_date."' and pay.branch='".$branch_id."' and pay.status='Y'group by emp.emp_id "; die;
+		$sno=1;
+		$rowcont = 4;
+		//SetWrapText("A3:O3");
+
+		$spreadsheet->getActiveSheet()->getStyle("A3:O3")->getAlignment()->setWrapText(true);
+	
+			if(mysql_num_rows($sql) > 0){
+			while($row = mysql_fetch_array($sql)){
+			 	$total_working_days = $row['total_present'] + $row['sundays'] + $row['holidays']; 
+				$spreadsheet->getActiveSheet()->setCellValue("A".$rowcont,$sno);
+				$spreadsheet->getActiveSheet()->setCellValue("B".$rowcont,$row['emp_id']);
+				$spreadsheet->getActiveSheet()->setCellValue("C".$rowcont,$row['cname']);
+				$spreadsheet->getActiveSheet()->setCellValue("D".$rowcont,$dep[$row['pdesig']]);
+				$spreadsheet->getActiveSheet()->setCellValue("E".$rowcont,$desig[$row['pdesig1']]);
+				$spreadsheet->getActiveSheet()->setCellValue("F".$rowcont,$row['plocation']);
+				$spreadsheet->getActiveSheet()->setCellValue("G".$rowcont,$row['pan_card_no']);
+				$spreadsheet->getActiveSheet()->setCellValue("H".$rowcont,$row['account_no']);
+		if($row['pan_card_no']=="Applied"){
+SetBackgroundColor("G".$rowcont,"CD5C5C");}
+if($row['account_no']=="" || $row['account_no']=="Applied" ){
+SetBackgroundColor("H".$rowcont,"CD5C5C");}
+				$spreadsheet->getActiveSheet()->setCellValue("I".$rowcont,$row['bank_name']);
+				$spreadsheet->getActiveSheet()->setCellValue("J".$rowcont,$row['branch_name']);
+				$spreadsheet->getActiveSheet()->setCellValue("K".$rowcont,$row['ifsc_code']);
+				$spreadsheet->getActiveSheet()->setCellValue("L".$rowcont,$row['aadhar_card_no']);
+				$spreadsheet->getActiveSheet()->setCellValue("M".$rowcont,$row['esi_no']);//account_no
+				$spreadsheet->getActiveSheet()->setCellValue("N".$rowcont,$row['epf_no']);
+			    $spreadsheet->getActiveSheet()->setCellValue("O".$rowcont,$row['uan_no']);//account_no
+				$sno++;
+				$rowcont++;
+			}
+	
+		//	//SetCellFont("A".$rowcont.":BG".$rowcont.,"Arial","10",true,false,"none","000000");
+			//$spreadsheet->getActiveSheet()->setCellValue("AD".$rowcont,'=SUM(AD4:AD'.($rowcont-1).')');
+			//$spreadsheet->getActiveSheet()->setCellValue("AE".$rowcont,'=SUM(AE4:AE'.($rowcont-1).')');
+			//$spreadsheet->getActiveSheet()->setCellValue("AF".$rowcont,'=SUM(AF4:AF'.($rowcont-1).')');
+			}
+			//SetCellborder("A1","");
+			
+	}
+
+	function SetBackgroundColor($cells, $color) {
+		global $spreadsheet;
+		
+		
+		$spreadsheet->getActiveSheet()->getStyle($cells)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setRGB($color);
+	}
+
+	function cellcenterv($cells) {
+		global $spreadsheet;
+	   $spreadsheet->getActiveSheet()->getStyle($cells)->getAlignment()->setHorizontal(Alignment::VERTICAL_CENTER);
+	}
+
+function cellcenterh($cells) {
+	global $spreadsheet;
+
+	$spreadsheet->getActiveSheet()->getStyle($cells)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+}    
+	
+	$current_date = date('d-M-Y H:i:s');
+	$file_name = "HRMS Pan Card Upload Details ".$region.".xlsx";
+	
+	
+	ob_end_clean();
+	$writer = new Xlsx($spreadsheet);
+
+	header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+	header('Content-Disposition: attachment; filename="'. urlencode($file_name).'"');
+	ob_end_clean();
+	$writer->save("php://output");
+			exit;
+	
+	function convert_numbers($number)
+		{
+			if (($number < 0) || ($number > 999999999))
+			{
+			throw new Exception("Number is out of range");
+			}
+			
+			$Cn = floor($number / 10000000);  /* Crores (Hundred Lakhs) */
+			$number -= $Cn * 10000000;
+			$Ln = floor($number / 100000);  /* Lakhs (Hundred thousand) */
+			$number -= $Ln * 100000;
+			$kn = floor($number / 1000);     /* Thousands (kilo) */
+			$number -= $kn * 1000;
+			$Hn = floor($number / 100);      /* Hundreds (hecto) */
+			$number -= $Hn * 100;
+			$Dn = floor($number / 10);       /* Tens (deca) */
+			$n = $number % 10;               /* Ones */
+			
+			$res = "";
+			
+			if ($Cn)
+			{
+			   $res .= convert_numbers($Cn) . " Crore";
+			}
+			if ($Ln)
+			{
+			   $res .= convert_numbers($Ln) . " Lakh";
+			}
+			if ($Gn)
+			{
+			   $res .= convert_numbers($Gn) . " Million";
+			}
+			
+			if ($kn)
+			{
+			   $res .= (empty($res) ? "" : " ") .
+				   convert_numbers($kn) . " Thousand";
+			}
+			
+			if ($Hn)
+			{
+			   $res .= (empty($res) ? "" : " ") .
+				   convert_numbers($Hn) . " Hundred";
+			}
+			
+			$ones = array("", "One", "Two", "Three", "Four", "Five", "Six",
+			   "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen",
+			   "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eightteen",
+			   "Nineteen");
+			$tens = array("", "", "Twenty", "Thirty", "Fourty", "Fifty", "Sixty",
+			   "Seventy", "Eigthy", "Ninety");
+			
+			if ($Dn || $n)
+			{
+			   if (!empty($res))
+			   {
+				   $res .= " and ";
+			   }
+			
+			   if ($Dn < 2)
+			   {
+				   $res .= $ones[$Dn * 10 + $n];
+			   }
+			   else
+			   {
+				   $res .= $tens[$Dn];
+			
+				   if ($n)
+				   {
+					   $res .= " " . $ones[$n];
+				   }
+			   }
+			}
+			
+			if (empty($res))
+			{
+			   $res = "zero";
+			}
+			
+			return $res;
+		}	
+	
+	
+
 ?>
-         <div class="clear"></div>
-            <div class="portlet">
-            	<h3 class="portlet-title">
-	              <u>Customize Search</u>
-	            </h3>
-	            <form id="demo-validation" action="" data-validate="parsley" class="form parsley-form">
-               <div class="form-group col-sm-3">
-            <label for="name">Search Criteria </label>
-            <select id="search" name="search" class="form-control parsley-validated chosen-select searchCriteria" data-required="true" tabindex="57">
-              <option value="">Select</option>
-              <option value="all">All</option>
-              <option value="emp_id">Employee Id</option>
-              <option value="emp_name">Employee Name</option>
-              <option value="pdesig1">Designation</option>
-              <option value="design">Department</option>
-            </select>
-			<span class="selectboxErr" style="color:red;display:none"> * Select any criteria </span>
-          </div>
-          <div class="form-group col-sm-3">
-            <label for="name">
-            <label class="compulsory"></label>
-            Region
-            </label>
-            <select id="region" name="region" class="form-control parsley-validated chosen-select searchRegion" tabindex="58" >
-              <option value="">Select</option>
-                <?php
-
-				if($region !=''){
-				$sql_reg="select region_id,region_name from region_master where region_id in (".$region.")"; 
-				$reg_sql=mysql_query($sql_reg);
-				IF(mysql_num_rows($reg_sql) > 0){
-				while($log_region = mysql_fetch_object($reg_sql)) {
-				?>
-				<option value="<?php echo $log_region->region_name; ?>"  <?php if($log_region->region_name==$res_emp->region_name)echo "Selected='Selected'";?>><?php echo $log_region->region_name; ?></option>
-				<?php	
-				}
-				}
-
-				}
-				
-				?>
-            </select>
-			<span class="selectregErr" style="color:red;display:none"> * Select region </span>
-          </div>
-          <div class="form-group col-sm-3">
-            <label for="name">Enter Keyword</label>
-            <input type="text" id="keyword" name="keyword" class="form-control parsley-validated " data-required="true" placeholder="Enter Keyword" tabindex="59">
-			<span class="keywordErr" style="color:red;display:none"> * Enter keyword </span>
-          </div>
-          <div class="form-group  col-sm-3">
-            <button type="button" class="btn btn-danger search_btn" id="search_criteria" style="margin-top: 23px;" onclick="search_key('1', '0')"tabindex="60">Search</button>
-          </div>
-				</form>
-<div class="clear"></div><br />
-					<div class="clear"></div>
-				<div id="view_details_indu"></div>
-            	
-            </div>            
-          </div> <!-- /.portlet -->
-
-        </div> <!-- /.col -->
-
-      </div> <!-- /.row -->
-
-    </div> <!-- /.container -->
-	
-	   <script type="text/javascript">
-		$(document).ready(function() {
-
-			<?php if($id!=''){?>
-				
-
-				$("#to_load_doc_grid").DataTable({ ordering: false});
-
-				<?php } ?>
-			$('#error_msg').hide();
-			$('#proof_doc').hide();	
-	$('#uploadImage').hide();
-			$("a[name=addRow]").click(function () {
-            // Code between here will only run when the a link is clicked and has a name of addRow
-            $("table#table1 tr:last").after('<tr><td><img class="delete" alt="delete" src="@Url.Content("~/content/delete_icon.png")" /></td></tr>');
-            return false;
-        });
-			
-		$(".chosen-select").chosen({no_results_text:'Oops, nothing found!'},{disable_search_threshold: 10});
-		<?php if($url=='') { ?>
-		setTimeout(function() {
-			$('.message_cu').fadeOut('fast');
-		}, 3000);
-		<?php } ?>
-		$.validator.setDefaults({ ignore: ":hidden:not(select)" });
-		$.validator.addMethod("phoneUS", function (phone, element) {
-        phone = phone.replace(/\s+/g, "");
-        return this.optional(element) || phone.match(/^[ 0-9-+,/+-]*$/);
-    }, "Enter valid phone number.");  //cash,cheque,normal
-
-$("#form1").validate({
-		rules:{
-			id_proof:{
-				required:true
-			},
-			cname:{
-				required:true,
-				number:false
-			},
-			region1:{
-				required:true
-			},
-			pbranch:{
-				required:true
-			},
-			
-			cstate:{
-				required:true
-			},
-			plocation:{
-				required:true
-			},
-			pdesig:{
-				required:true
-			},
-			pdesig1:{
-				required:true
-			},
-			address1:{
-				required:true
-			},	
-			mobile1:{
-				required:true,
-				number:true,
-				minlength:10
-			},
-			pan_card_no:{
-				required:true
-				/*minlength:10*/
-			},
-			/*aadhar_card_no:{
-				number:true,
-				minlength:12
-			},	*/		
-			dob:{
-				required:true
-			},
-			doj:{
-				required:true
-			},
-			father_name:{
-				required:true,
-				number:false
-			},
-			gender:{
-				required:true
-			},
-			phone:{
-				number:true
-			},
-			pin:{
-				required:true,
-				number:true
-			},
-			phone11:{
-				required:true		
-			},
-			mobile2:{				
-				number:true,
-				minlength:10
-			},
-			email:{
-				email:true		
-			},
-			/*ce_status:{
-				required:true		
-			}*/
-		},
-		messages:{
-			id_proof:{
-				required:'Select Document Type.'
-			},
-		cname:{
-				required:'Enter The Employee Name.',
-				number:'Enter valid Employee Name.'
-			},
-			region1:{
-				required:'Select The Region.'
-			},
-			pbranch:{
-				required:'Select The Branch.'
-			},
-			cstate:{
-				required:'Select State.'
-			},
-			plocation:{
-				required:'Select The Location'
-			},			
-			pdesig:{
-				required:'Select Dep.'				
-			},
-			pdesig1:{
-				required:'Select Designation '	
-			},
-			address:{
-				required:'Enter Address'	
-			},
-			/*ce_status:{
-				required:'Select CE Status'	
-			},*/
-			mobile1:{
-				required:'Enter Mobile No.'	,
-					number:'Enter Valid Mobile No'
-			},
-			pan_card_no:{
-				required:'Enter PanCard No.'				
-			},
-			dob:{
-				required:'Select Date.'				
-			},
-			doj:{
-				required:'Select Date.'				
-			},
-			father_name:{
-				required:'Enter Father Name.',
-				number:'Enter valid Employee Name.'				
-			},
-			gender:{
-				required:'Select Gender.'				
-			},
-			phone:{
-				number:'Enter Valid Mobile No'				
-			},
-			pin:{
-				required:'Enter Pin Code .',		
-				number:'Enter Numeric Only'		
-			},
-			email:{
-				email:'Enter Vaild Email.'				
-			},
-			types:{
-				required:'Select Type.'				
-			},
-			mobile2:{
-				required:'Enter Mobile No.'	,
-					number:'Enter Valid Mobile No'
-			},
-			/*aadhar_card_no:{
-				required:'Enter Aadhar No.'	,
-					number:'Enter Valid Aadhar No'
-			},*/
-			
-		}
-	});
-
-		
-});
-
-$("#proof_doc").change(function()
-	 {
-	 val12=$('#id_proof').val();
-	 if(val12==10 || val12==12 || val12==14 || val12==21 || val12==06 || val12==15 || val12==22 || val12==23 || val12==24 || val12==25)
-		{
-	      var file = $("#proof_doc").val();
-          if (file.substr(file.lastIndexOf('.') +1).toUpperCase() == "PDF") 
-          {
-            //alert("valid");
-		
-		$("#error_msg").hide();
-          }
-           else
-           {
-           //alert('not valid');
-		    $("#error_msg").show();
-            $("#proof_doc").val("");
-			}
-		}
-		});
-
-function load_verify()
-{
-	var id_proof =$('#id_proof').val();
-	if(id_proof=='01' || id_proof=='02' || id_proof=='03' || id_proof=='04' || id_proof=='05' || id_proof=='06' || id_proof=='07' || id_proof=='08' || id_proof=='10' || id_proof=='11' || id_proof=='12' || id_proof=='14' || id_proof=='15' || id_proof=='16' || id_proof=='17' || id_proof=='18' || id_proof=='19' || id_proof=='21' || id_proof=='22' || id_proof=='23' || id_proof=='24' || id_proof=='25')
-	{
-	$('#proof_doc').show();	
-	$('#uploadImage').hide();	
-	$('.crop').hide();	
-	}
-	else{
-		$('#uploadImage').show();	
-	    $('#proof_doc').hide();
-		$('.crop').show();	
-	}
-}
-	$(".searchCriteria").on('change',function()
-		{
-			$('#keyword').val('');			
-			if($('#search').val() == '')
-			{
-				$(".selectboxErr").css('display','inline');
-				$(".selectregErr").css('display','none');
-				$('.keywordErr').css('display','none');
-				
-			}
-			else if($('#search').val()=='all')
-			{
-				if($('#region').val() == '')
-				{
-					$(".selectregErr").css('display','inline');
-					$("#search_criteria").prop("disabled", true);
-				}else
-				{
-					$(".selectregErr").css('display','none');
-					$("#search_criteria").prop("disabled", false);
-				}			
-				$(".selectboxErr").css('display','none');
-				$('.keywordErr').css('display','none');
-			}
-			else if( $('#search').val() == 'emp_id' )
-			{
-				$(".selectboxErr").css('display','none');
-				$('.keywordErr').css('display','inline');
-				$(".selectregErr").css('display','none');
-				$("#search_criteria").prop("disabled", true);
-				
-				$('#keyword').keyup(function(){
-				if ($.trim($('#keyword').val()) == '') {
-					$('.keywordErr').css('display','inline');
-					$('#search_criteria').prop('disabled', true);
-				} else {
-					$('.keywordErr').css('display','none');
-					$('#search_criteria').prop('disabled', false);
-				}
-				});
-			}
-			else
-			{
-				if($('#region').val() == '')
-				{
-					$(".selectregErr").css('display','inline');
-				}else
-				{
-					$(".selectregErr").css('display','none');					
-				}
-				$("#search_criteria").prop("disabled", true);
-				$(".selectboxErr").css('display','none');
-				$('.keywordErr').css('display','inline');
-				
-				$('#keyword').keyup(function(){
-					if ($.trim($('#keyword').val()) == '') {
-						$('.keywordErr').css('display','inline');
-						$('#search_criteria').prop('disabled', true);
-					} else {
-						$('.keywordErr').css('display','none');
-						$('#search_criteria').prop('disabled', false);
-					} 	
-				});
-			}
-				
-		});
-		$(".searchRegion").on('change',function()
-		{
-			if($('#region').val() == '')
-			{
-				$(".selectregErr").show();
-			}else
-			{
-				if($('#search').val()== 'emp_name' || $('#search').val()== 'pdesig1' || $('#search').val()== 'design')
-				{
-					$(".selectregErr").hide();
-					$('#keyword').keyup(function(){
-					if ($.trim($('#keyword').val()) == '') {
-						$('.keywordErr').css('display','inline');
-						$('#search_criteria').prop('disabled', true);
-					} else {
-						$('.keywordErr').css('display','none');
-						$('#search_criteria').prop('disabled', false);
-					}  
-				});					
-				}else
-				{ 
-					$(".selectregErr").hide();
-					$("#search_criteria").prop("disabled", false); 
-				}				
-			}
-		});
-
-	function search_key (search_type, page_start)
-	{
-      if($('#keyword').val()!='' || $('#search').val()!='' || $('#search').val()=='all'){
-          
-            tbl_search = '';
-
-            $.ajax({
-                type: "POST",
-                url: "HRMS/AjaxReference/hrmsLoadData.php",                
-                data: 'pgn=1&start_limit='+page_start+'&tbl_search='+tbl_search+'&per_page='+$('#per_page').val()+'&end_limit=10&types=2&load=1&pid=emp_doc&search='+$('#search').val()+'&keyword='+$('#keyword').val()+'&region='+$('#region').val(),
-                beforeSend: function(){                
-                    $('#view_details_indu').html('<img src="" alt="">');
-                },
-                success: function(msg){
-                    $('#view_details_indu').html(msg);
-                    $('.search_field').css('display', '');
-
-
-
-$("#hrms_kyc_docu").DataTable({ ordering: false});
-                }
-            });
-        }
-        else {	
-           // $('#keyword').addClass('error_dispaly');
-		   $(".selectboxErr").css('display','inline');
-        }
-    }
-	
-	function AddRow(obj){
-		var id=$(obj).attr('id')+"1";
-		var data = "<tr>"+$("#"+id+" tbody tr:first").html()+"</tr>";
-		$("#"+id+" tbody").append(data);
-		sno = ($("#"+id+" tbody tr").length);
-		$("#"+id+" tbody tr:last").find('td:eq(1)').html(sno);
-		clear_row(id);
-		
-	}
-	
-	function DeleteRow(obj){
-		var ids=$(obj).attr('id');
-		table_id = ids.substr(0,ids.length-1)+"1";
-    con = confirm("Do you want to Delete the Record?");
-    if(con){
-  		$('#'+table_id+' tbody tr').find('.chkbox:checked').each(function () {
-        var tbl_tr_len = $('#'+table_id+' tbody tr').length;
-        closest_tr = $(this).closest('tr');
-        var rel = $(this).closest('tr').find('td:last').find('a').attr('rel');
-        data = rel.split('%');
-        var id = data[0];
-        var pid = data[1];
-        var dtype = data[2];
-
-        if(id != 0){
-        $.ajax({
-          url:'transaction_delete.php',
-          data:{id:id,pid:pid,dtype:dtype},
-          method:'post',
-          success:function(result){
-            var res = $.parseJSON(result);
-            $(".alert").show();
-            if(res['result_response'] == 'success'){
-              if(tbl_tr_len == 1){
-                var data = "<tr>"+$("#"+table_id+" tbody tr:first").html()+"</tr>";
-                closest_tr.remove();
-                $("#"+table_id+" tbody").append(data);
-                clear_row(table_id);
-                }else{
-                  closest_tr.remove();
-                }
-              }
-            }
-          });
-        }
-        else{
-          var tbl_tr_len = $('#'+table_id+' tbody tr').length;
-          
-          if(tbl_tr_len == 1){
-            var data = "<tr>"+$("#"+table_id+" tbody tr:first").html()+"</tr>";
-            closest_tr.remove();
-            $("#"+table_id+" tbody").append(data);
-            clear_row(id);
-          }else{
-            closest_tr.remove();
-          }
-        }
-  		});
-    } 
-	}
-
-	function delete_data_row(obj){
-  var table_id = $(obj).closest('table').attr('id');
-  var tbl_tr_len = $('#'+table_id+' tbody tr').length;
-  con = confirm("Do you want to Delete the Record?");
-  if(con){
-    var rel = $(obj).prop("rel");
-   // alert(rel);
-    data = rel.split('%');
-    var id = data[0];
-    var pid = data[1];
-    var dtype = data[2];
-    if(id != 0){
-      $.ajax({
-        url:'transaction_delete.php',
-        data:{id:id,pid:pid,dtype:dtype},
-        method:'post',
-        success:function(result){
-          //alert(result);
-          var res = $.parseJSON(result);
-          $(".alert").show();
-          if(res['result_response'] == 'success'){
-            //alert("success");
-            if(tbl_tr_len == 1){
-              var data = "<tr>"+$("#"+table_id+" tbody tr:first").html()+"</tr>";
-              $(obj).closest('tr').remove();
-              $("#"+table_id+" tbody").append(data);
-              clear_row(table_id);
-            }else{
-              $(obj).closest('tr').remove();
-            }
-          }
-        }
-      });
-    }
-    else{
-      if(tbl_tr_len == 1){
-        var data = "<tr>"+$("#"+table_id+" tbody tr:first").html()+"</tr>";
-        $(obj).closest('tr').remove();
-        $("#"+table_id+" tbody").append(data);
-        clear_row(table_id);
-      }else{
-        $(obj).closest('tr').remove();
-      }
-    }
-  }else{
-    return false; 
-  }
-}
-	
-</script>
-<script type="text/javascript">
-	
-	function setInfo(i, e) {
-	$('#x').val(e.x1);
-	$('#y').val(e.y1);
-	$('#w').val(e.width);
-	$('#h').val(e.height);
-}
-
-$(document).ready(function() {
-	var p = $("#uploadPreview");
-	$("#uploadImage").change(function(){
-		p.fadeOut();
-		var oFReader = new FileReader();
-		oFReader.readAsDataURL(document.getElementById("uploadImage").files[0]);
-		oFReader.onload = function (oFREvent) {
-	   		p.attr('src', oFREvent.target.result).fadeIn();
-		};
-	});
-
-	$('img#uploadPreview').imgAreaSelect({
-		aspectRatio: '1:1',
-		onSelectEnd: setInfo
-	});
-});
-
-function show()
-{
-	
-	document.getElementById('modal').style.display='block';
-	
-}
-function show1()
-{
-	document.getElementById('modal').style.display='none';
-	document.getElementById('uploadPreview').style.display='none';
-	$('#uploadPreview').load(document.URL +  ' #uploadPreview');
-	document.getElementById('uploadImage').value='';
-}
-function show2()
-{
-	document.getElementById('modal').style.display='none';
-	document.getElementById('uploadPreview').style.display='none';
-	document.getElementById('uploadPreview').style.boxShadow="0px 0px 0px 0px rgba(0, 0, 0, 0);";
-	document.getElementById('uploadPreview').style.boxShadow="0px 0px 0px 0px rgba(0, 0, 0, 0);";
-}
-	</script>
-	
