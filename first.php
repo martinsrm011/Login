@@ -9,6 +9,8 @@ if (!empty($_SESSION['other_permissions'])) {
   $people_join_date_permission = explode(',', $_SESSION['other_permissions']);
 }
 
+
+///joining date access permission(end)
 $id = $_REQUEST['id'];
 $nav = $_REQUEST['nav'];
 $region_load = $_REQUEST['region'];
@@ -21,12 +23,13 @@ $ce_id = $_REQUEST['ce_id'];
 include('CommonReference/date_picker_link.php');
 require_once __DIR__ . '/../DbConnection/dbConnect.php';
 
-$visib = array('Admin', 'HR');
+
 /* **********auto increment*********/
+$visib = array('Admin', 'HR');
 $query = "select max(docket_no) as id from hrms_empdet";
 $exec = mysql_query($query);
 $max_id = mysql_fetch_object($exec);
-if ($max_id->id != null) {
+if ($max_id->id != NULL) {
 
   $query2 = "select docket_no from hrms_empdet where docket_no='" . $max_id->id . "'";
   $exec = mysql_query($query2);
@@ -87,7 +90,7 @@ if ($max_id->id != null) {
 $id = $_REQUEST['id'];
 if ($r_id != '') {
 
-  $edu = mysql_query("select * from hrms_edu_details where r_id ='" . $id . "' limit 0,1 ");
+  $edu = mysql_query("select * from hrms_edu_details where r_id ='" . $id . "' ");
 
   $select_cont_type = mysql_query("select * from hrms_empdata where r_id ='" . $id . "' ");
   if (mysql_num_rows($select_cont_type) > 0) {
@@ -106,7 +109,7 @@ if ($id != '') {
 
 
 
-  $edu = mysql_query("select * from hrms_edu_details where r_id ='" . $id . "' and status='Y' limit 0,1 ");
+  $edu = mysql_query("select * from hrms_edu_details where r_id ='" . $id . "' and status='Y' ");
   if (mysql_num_rows($edu) > 0) {
     while ($res_edu = mysql_fetch_object($edu)) {
       $edu_id = $res_edu->edu_id;
@@ -120,7 +123,7 @@ if ($id != '') {
   }
 
 
-  $edu1 = mysql_query("select * from hrms_exp_details where r_id ='" . $id . "' and status='Y' limit 0,1 ");
+  $edu1 = mysql_query("select * from hrms_exp_details where r_id ='" . $id . "' and status='Y' ");
   $res_exp = mysql_fetch_object($edu1);
 
 
@@ -134,11 +137,10 @@ if ($id != '') {
 
 }
 ?>
-<!------------- New for datepicker Start ----------------------->
+<!-----------------------To Add DatePicker Start--------------------------------->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<!--------------  New for datepicke End ------------------------>
-
+<!-----------------------Date Picker End----------------------------------------->
 <!--<script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>-->
 <script type="text/javascript" src="js/jquery.autocomplete.min.js"></script>
 <script type="text/javascript" src="js/currency-autocomplete.js"></script>
@@ -146,12 +148,12 @@ if ($id != '') {
   <div class="row">
     <div class="col-md-12 col-sm-11">
       <div class="portlet">
-        <h3 class="portlet-title"> <u>Basic Employee Details</u> </h3>
+        <h3 class="portlet-title"> <u>Basic RPF Details</u> </h3>
         <div id="load_lod_shop1" style="display:none;float:left; width:100%; text-align:center; padding:3px;" class="alert alert-danger"></div>
         <div id="load_lod_shop" style="display:none;float:left; width:100%;" class="alert"></div>
         <?php if ($nav != '') { ?>
           <div class="message_cu">
-            <div style="padding: 7px;" class="alert <?php if ($nav == '2_2_1' || $nav == '2_2_2' || $nav == '2_2_3' || $nav == '2_2_4' || $nav == '3_3_3') {
+            <div style="padding: 7px;" class="alert <?php if ($nav == '2_2_1' || $nav == '2_2_2' || $nav == '2_2_3' || $nav == '2_2_4') {
                                                       echo 'alert-danger';
                                                     } else {
                                                       echo 'alert-success';
@@ -160,7 +162,6 @@ if ($id != '') {
                 $status_cu = array(
                   '2_1_1' => 'New Employee Details Saved',
                   '2_3_1' => 'Employee Details Update Sucessfully',
-                  '3_3_3' => 'Uploaded image or document greater than 3MB, please try again',
                   '2_2_1' => 'Sorry, Please Try Again Employee Personal Details',
                   '2_2_2' => 'Sorry, Please Try Again Employee Educational Details',
                   '2_3_6' => 'Selected Employee Contract Details Updated',
@@ -199,12 +200,8 @@ if ($id != '') {
                 <div class="form-group col-sm-3">
                   <select id="app_type" name="app_type" class="form-control parsley-validated chosen-select" data-required="true" tabindex="2">
                     <option value="">Select </option>
-                    <option value="New" <?php if ($res_emp->app_type == 'New') {
-                                          echo 'selected="selected"';
-                                        }  ?>>New</option>
-                    <option value="Replacement" <?php if ($res_emp->app_type == 'Replacement') {
-                                                  echo 'selected="selected"';
-                                                } ?>>Replacement</option>
+                    <option value="New" <?php if ($res_emp->app_type == 'New')  echo 'selected="selected"';  ?>>New</option>
+                    <option value="Replacement" <?php if ($res_emp->app_type == 'Replacement')  echo 'selected="selected"'; ?>>Replacement</option>
                   </select>
                 </div>
                 <div class="clear"></div>
@@ -235,32 +232,29 @@ if ($id != '') {
                 <div class="form-group col-sm-2">
                   <label for="name">
                     <label class="compulsory">*</label>
-                    Employee Id
+                    RPF Id
                   </label>
                 </div>
                 <div class="form-group col-sm-3">
 
                   <?php
-                      //$visib = array('admin', 'shaila', 'riyas','harishg','surya','Lalitadevi','amarjit','Manisha','balakram','Lingesh','sam','nigi','nisha','anupama','bhaskarjyothi','shashank59','vandanasahu','Mugesh','neha','fijo','kiranbiswas','krttibas','Sameer','pavithra','sandeep','rameshbabu','Sachinp','yaswantsingh','Joy','vishnupriya','Shahul','sandip','narendra','sachin');
-                      //$visib = array('admin', 'shaila', 'riyas','harishg','surya','sam','lingesh','fijo','shashank59','Sachinp','Nisha','sandeep','kiranbiswas','Amarjit','yaswantsingh','vandanasahu','rameshbabu','pavithra','Mugesh','Bhaskarjyothi','Manisha','Balakram','nigi','Lalitadevi','Sameer','krttibas','neha','narendra','Vijayalakshmi','chandrapati','Nisha','Joy','vishnupriya','Shahul','sandip','sachin');
-
-                      //$visib = array('admin','shaila','harishg','surya','Joy','vishnupriya','Shahul','prashanthr','blessyshalom');
-
+                      //$visib = array('admin', 'shaila', 'riyas','harishg','surya');
+                      //$visib = array('admin','shaila','harishg','surya','Joy','prashanthr','Shahul','blessyshalom');
                   ?>
                   <input type="hidden" id="replace_id" name="replace_id" class="form-control parsley-validated" value="<?php echo $res_emp->replace_id; ?>" >
-                  <input type="text" id="emp_id" name="emp_id" class="form-control parsley-validated" value="<?php echo $res_emp->emp_id; ?>" placeholder="Employee Name" tabindex="1" readonly="readonly">
+                  <input type="text" id="emp_id" name="emp_id" class="form-control parsley-validated" value="<?php echo $res_emp->emp_id; ?>" placeholder="RPF ID" tabindex="1" readonly>
                 </div><?php } ?>
 
               <div class="clear"></div>
               <div class="form-group col-sm-2">
                 <label for="name">
                   <label class="compulsory">*</label>
-                  Employee Name
+                  RPF Name
                 </label>
               </div>
               <div class="form-group col-sm-3">
 
-                <input type="text" id="cname" name="cname" class="form-control parsley-validated" value="<?php echo $res_emp->cname; ?>" placeholder="Employee Name" tabindex="2" <?php if (!in_array($per, $visib) && $id != '') { ?>readonly <?php } ?>>
+                <input type="text" id="cname" name="cname" class="form-control parsley-validated" value="<?php echo $res_emp->cname; ?>" placeholder="RPF Name" tabindex="2" <?php if (!in_array($per, $visib) && $id != '') { ?>readonly <?php } ?>>
               </div>
               <div class="form-group col-sm-1"></div>
               <div class="form-group col-sm-2">
@@ -273,12 +267,8 @@ if ($id != '') {
 
                 <select id="gender" name="gender" class="form-control parsley-validated chosen-select" data-required="true" tabindex="2" <?php if (!in_array($per, $visib) && $id != '') { ?> disabled="disabled" <?php } ?>>
                   <option value="">Select Gender</option>
-                  <option value="Male" <?php if ($res_emp->gender == 'Male') {
-                                          echo 'selected="selected"';
-                                        }  ?>>Male</option>
-                  <option value="Female" <?php if ($res_emp->gender == 'Female') {
-                                            echo 'selected="selected"';
-                                          }  ?>>Female</option>
+                  <option value="Male" <?php if ($res_emp->gender == 'Male')  echo 'selected="selected"';  ?>>Male</option>
+                  <option value="Female" <?php if ($res_emp->gender == 'Female')  echo 'selected="selected"';  ?>>Female</option>
                 </select>
               </div>
               <div class="clear"></div>
@@ -289,9 +279,7 @@ if ($id != '') {
                 </label>
               </div>
               <div class="form-group col-sm-3">
-                <input type="text" id="popupDatepicker1_modified" name="dob" class="form-control parsley-validated" placeholder="Date Of Birth" value="<?php if ($id) {
-                                                                                                                                                echo date('d-m-Y', strtotime($res_emp->dob));
-                                                                                                                                              } ?>" tabindex="3" <?php if (!in_array($per, $visib) && $id != '') { ?>readonly <?php } ?>>
+                <input type="text" id="popupDatepicker1_modified" name="dob" class="form-control parsley-validated" placeholder="Date Of Birth" value="<?php if ($id) echo date('d-m-Y', strtotime($res_emp->dob)); ?>" tabindex="3" <?php if (!in_array($per, $visib) && $id != '') { ?>readonly <?php } ?>>
               </div>
               <div class="form-group col-sm-1"></div>
               <div class="form-group col-sm-2">
@@ -308,52 +296,18 @@ if ($id != '') {
               <div class="form-group col-sm-2">
                 <label for="name">
                   <label class="compulsory">*</label>
-                  Employee Department
+                  RPF Department
                 </label>
               </div>
               <div class="form-group col-sm-3">
 
-                <select name="pdesig" class="form-control parsley-validated chosen-select" id="pdesig" tabindex="5" onchange="load_reporto();" <?php if (!in_array($per, $visib) && $id != '') { ?> disabled="disabled" <?php } ?>>
+                <select name="pdesig" class="form-control parsley-validated chosen-select" id="pdesig" tabindex="5" <?php if (!in_array($per, $visib) && $id != '') { ?> disabled="disabled" <?php } ?>>
                   <option value="">Select</option>
-
-                  <?php
-                  //Raghu Start
-                  $QueryOfDepartMent = mysql_query("SELECT depart,depart_code FROM depart_master WHERE status = 'Y' ");
-                  if (mysql_num_rows($QueryOfDepartMent) > 0) {
-                    while ($FetchOfDepartment = mysql_fetch_array($QueryOfDepartMent)) {
-                      $SelectedDepartment = '';
-                      if ($res_emp->pdesig == $FetchOfDepartment['depart_code']) {
-                        $SelectedDepartment = 'selected="selected"';
-                      }
-                      echo '<option value="' . $FetchOfDepartment['depart_code'] . '" ' . $SelectedDepartment . '>' . $FetchOfDepartment['depart'] . '</option>';
-                    }
-                  }
-                  //Raghu End
-
-
-                  /*
-
-<option  value="OP"<?php if($res_emp->pdesig=='OP')  echo 'selected="selected"';?>>Operations</option>
-<option  value="IT"<?php if($res_emp->pdesig=='IT')  echo 'selected="selected"';?>>Information technology</option>
-<option  value="BD"<?php if($res_emp->pdesig=='BD')  echo 'selected="selected"';?>>Business Development</option>
-<option  value="DM"<?php if($res_emp->pdesig=='DM')  echo 'selected="selected"';?>>Data Management</option>
-<option  value="CR"<?php if($res_emp->pdesig=='CR')  echo 'selected="selected"';?>>Customer Relations</option>
-<option  value="ADM"<?php if($res_emp->pdesig=='ADM')echo 'selected="selected"';?>>Administration</option>
-<option  value="HR"<?php if($res_emp->pdesig=='HR')  echo 'selected="selected"';?>>Human Resource</option>
-<option  value="BILL"<?php if($res_emp->pdesig=='BILL')  echo 'selected="selected"';?>>Billing</option>
-<option  value="AF"<?php if($res_emp->pdesig=='AF')  echo 'selected="selected"';?>>Accounts & Finance<option>
-<option  value="AUD"<?php if($res_emp->pdesig=='AUD')  echo 'selected="selected"';?>>Audit</option>
-<option  value="BNK"<?php if($res_emp->pdesig=='BNK')  echo 'selected="selected"';?>>Banking</option>
-<option  value="PAY"<?php if($res_emp->pdesig=='PAY')  echo 'selected="selected"';?>>Payroll</option>
-<option  value="VLT"<?php if($res_emp->pdesig=='VLT')  echo 'selected="selected"';?>>Vault</option>
-<option  value="CSR"<?php if($res_emp->pdesig=='CSR')  echo 'selected="selected"';?>>CSR</option>
-<option  value="NF"<?php if($res_emp->pdesig=='NF')  echo 'selected="selected"';?>>NOC & Fleet</option>
-
-*/
-
-
-                  ?>
-
+                  <option value="OP" <?php if ($res_emp->pdesig == 'OP')  echo 'selected="selected"'; ?>>Operations</option>
+                  <option value="BD" <?php if ($res_emp->pdesig == 'BD')  echo 'selected="selected"'; ?>>Business Development</option>
+                  <option value="AF" <?php if ($res_emp->pdesig == 'AF')  echo 'selected="selected"'; ?>>Accounts & Finance</option>
+                  <option value="HR" <?php if ($res_emp->pdesig == 'HR')  echo 'selected="selected"'; ?>>Human Resource</option>
+                  <option value="ADM" <?php if ($res_emp->pdesig == 'ADM')  echo 'selected="selected"'; ?>>Admin</option>
 
                 </select>
               </div>
@@ -361,7 +315,7 @@ if ($id != '') {
               <div class="form-group col-sm-2">
                 <label for="name">
                   <label class="compulsory">*</label>
-                  Employee Designation
+                  RPF Designation
                 </label>
               </div>
               <div class="form-group col-sm-3">
@@ -369,21 +323,20 @@ if ($id != '') {
                   <option value="" selected="selected">Select</option>
                   <?php
                   //$sql_region = mysql_query("SELECT region_name FROM region_master WHERE status='Y'");
-                  $desis_sql = "select desig_code,desig from desig_master where status='Y' and desig_code!='CE' and desig_code!='CCE' and desig_code!='GN' and desig_code!='DR' and desig_code!='GUD' and desig_code!='CVCE' ";
+                  //$desis_sql="select desig_code,desig from desig_master where status='Y'  and (desig_code='GN' OR desig_code='DR' OR desig_code='GUD') "; 
+                  $desis_sql = "select desig_code,desig from desig_master where status='Y'  and desig_type='RPF' ";
                   $deg_s = mysql_query($desis_sql);
                   while ($res_deg = mysql_fetch_object($deg_s)) {
                   ?>
-                    <option value="<?php echo $res_deg->desig_code; ?>" <?php if ($res_deg->desig_code == $res_emp->pdesig1) {
-                                                                          echo "Selected='Selected'";
-                                                                        } ?>><?php echo $res_deg->desig; ?></option>
+                    <option value="<?php echo $res_deg->desig_code; ?>" <?php if ($res_deg->desig_code == $res_emp->pdesig1) echo "Selected='Selected'"; ?>><?php echo $res_deg->desig; ?></option>
                   <?php
 
                   }
                   ?>
                 </select>
               </div>
-              <!--New for align ---->
-                <div class="clear"></div>
+               <!--New for align ---->
+               <div class="clear"></div>
               <!-- align END----->
               <div class="status_ld">
                 <div class="form-group col-sm-2">
@@ -393,42 +346,32 @@ if ($id != '') {
                   <select id="ce_status" name="ce_status" class="form-control parsley-validated chosen-select" data-required="true" tabindex="27" <?php if (!in_array($per, $visib) && $id != '') { ?> disabled="disabled" <?php } ?>>
                     <option value="">Select Status</option>
 
-                    <option <?php if ($res_emp->wstatus == "Ready") {
-                              echo "Selected='Selected'";
-                            } ?> value="Ready">Ready</option>
-                    <option <?php if ($res_emp->wstatus == "Active") {
-                              echo "Selected='Selected'";
-                            } ?> value="Active">Active</option>
-                    <option <?php if ($res_emp->wstatus == "Dormant") {
-                              echo "Selected='Selected'";
-                            } ?> value="Dormant">Inactive / Dormant</option>
-                    <!--<option <?php if ($res_emp->wstatus == "Inactive") {
-                                  echo "Selected='Selected'";
-                                } ?> value="Inactive">Inactive</option>-->
-                    <!--  <option <?php if ($res_emp->wstatus == "Backup") {
-                                    echo "Selected='Selected'";
-                                  } ?> value="Backup">Terminated</option>-->
+                    <option <?php if ($res_emp->wstatus == "Ready") echo "Selected='Selected'"; ?> value="Ready">Ready</option>
+                    <option <?php if ($res_emp->wstatus == "Active") echo "Selected='Selected'"; ?> value="Active">Active</option>
+                    <option <?php if ($res_emp->wstatus == "Dormant") echo "Selected='Selected'"; ?> value="Dormant">Inactive / Dormant</option>
+                    <!--<option <?php if ($res_emp->wstatus == "Inactive") echo "Selected='Selected'"; ?> value="Inactive">Inactive</option>-->
+                    <!--  <option <?php if ($res_emp->wstatus == "Backup") echo "Selected='Selected'"; ?> value="Backup">Terminated</option>-->
                   </select>
                 </div>
               </div>
               <!-------------For Status Remarks------------------------------------->
 
-                <div id="to_append_inactive_status" class="to_append_inactive_status_tw" style="display:none">
-                <div class="form-group col-sm-1"></div>
-                <div class="form-group col-sm-1"></div>
-                <div class="form-group col-sm-2">
-                                <label for="name">
-                                  <label class="compulsory">*</label>
-                                  Status Remarks
-                                </label>
-                              </div>
-                <div class="form-group col-sm-3">
-                                <input type="text" id="inactv_remarks" name="inactv_remarks" class="form-control parsley-validated" placeholder="Remarks" value="<?php echo $res_emp->inactive_status_remarks;  ?>"  tabindex="28" >
-                                <span id="inactv_remarks" style="color:red;"></span>
-                              </div>
-                </div>
+              <div id="to_append_inactive_status" class="to_append_inactive_status_tw" style="display:none">
+              <div class="form-group col-sm-1"></div>
+              <div class="form-group col-sm-1"></div>
+              <div class="form-group col-sm-2">
+                              <label for="name">
+                                <label class="compulsory">*</label>
+                                Status Remarks
+                              </label>
+                            </div>
+              <div class="form-group col-sm-3">
+                              <input type="text" id="inactv_remarks" name="inactv_remarks" class="form-control parsley-validated" placeholder="Remarks" value="<?php echo $res_emp->inactive_status_remarks;  ?>"  tabindex="28" >
+                              <span id="inactv_remarks" style="color:red;"></span>
+                            </div>
+              </div>
 
-            <!-------------Status Remarks End------------------------------------->
+<!-------------Status Remarks End------------------------------------->
               <div class="clear"></div>
               <div class="form-group col-sm-2">
                 <label for="name">
@@ -443,8 +386,8 @@ if ($id != '') {
                                                                                                                                                 } else {
                                                                                                                                                   echo date('d-m-Y');
                                                                                                                                                 } ?>" tabindex="7" <?php if (!in_array($HrmsJoinDatePermission, $people_join_date_permission)) {
-                                                                                                                                                                      echo 'readonly';
-                                                                                                                                                                    } ?>>
+                                                                                                                                                                                                                                                                echo 'readonly';
+                                                                                                                                                                                                                                                              } ?>>
               </div>
               <div class="form-group col-sm-1"></div>
               <div class="form-group col-sm-2">
@@ -466,20 +409,15 @@ if ($id != '') {
                 </select>
               </div>
               <!-- clear -->
-              <div class="clear"></div>
-
               <div class="form-group col-sm-2">
                 <label for="name">
-                  <label class="compulsory">*</label>
-                  Salary of DOJ Rs
-                </label>
+                  <label class="compulsory">*</label>Gun License Exp Date</label>
               </div>
               <div class="form-group col-sm-3">
-
-                <input type="text" id="ini_sal" name="ini_sal" class="form-control parsley-validated" placeholder="Salary Of DOJ" value="<?php echo $res_emp->ini_sal; ?>" tabindex="8">
+                <input type="hidden" id="hidden_agg_date" value="<?php echo date('d-m-Y', strtotime($res_emp->aggr_date)); ?>">
+                <input type="text" id="popupDatepicker2" autocomplete='off' name="agg_date" class="form-control parsley-validated" placeholder="Licence Date" value="<?php echo date('d-m-Y', strtotime($res_emp->aggr_date)); ?>" tabindex="8">
               </div>
               <!-- col.sm.1 -->
-
               <div class="form-group col-sm-1"></div>
               <div class="form-group col-sm-2">
                 <label for="name">
@@ -493,8 +431,8 @@ if ($id != '') {
 
               </div>
               <!-- clear -->
-              <div class="clear"></div>
 
+              <div class="clear"></div>
               <div class="form-group col-sm-2">
                 <label for="name">
                   <label class="compulsory">*</label>
@@ -506,8 +444,8 @@ if ($id != '') {
                 <input type="text" id="pin" name="pin" class="form-control parsley-validated" placeholder="Current Residential Pin Code" value="<?php echo $res_emp->pin; ?>" tabindex="10" maxlength="6" onkeypress="return IsAlphaNumeric(event);" ondrop="return false;" onpaste="return false;">
               </div>
               <!-- col.sm.1 -->
-              <div class="form-group col-sm-1"></div>
 
+              <div class="form-group col-sm-1"></div>
               <div class="form-group col-sm-2">
                 <label for="name">
                   <label class="compulsory">*</label>
@@ -516,12 +454,12 @@ if ($id != '') {
               </div>
               <div class="form-group col-sm-3">
 
-                <input type="text" id="pan_card_no" name="pan_card_no" class="form-control parsley-validated" placeholder="Pan Card Number" value="<?php echo $res_emp->pan_card_no; ?>" <?php if ($id == '') { ?> onblur="dublicate_pan()" <?php } ?> tabindex="11" maxlength="10">
+                <input type="text" id="pan_card_no" name="pan_card_no" class="form-control parsley-validated" placeholder="Pan Card Number" value="<?php echo $res_emp->pan_card_no; ?>" <?php if ($id == '') { ?> onblur="dublicate_pan()" <?php } ?>tabindex="11" maxlength="10">
 
               </div>
               <!-- clear -->
-              <div class="clear"></div>
 
+              <div class="clear"></div>
               <div class="form-group col-sm-2">
                 <label for="name">
                   <label class="compulsory">*</label>
@@ -533,7 +471,6 @@ if ($id != '') {
               </div>
               <!-- col.sm.1 -->
               <div class="form-group col-sm-1"></div>
-
               <!--			  <div class="form-group col-sm-3 wrap"> 
                 <label for="name">
                 <label class="compulsory">*</label>
@@ -551,11 +488,8 @@ if ($id != '') {
                 Download Pan Card
                 </label>
            
-              <a href="<?php if ($res_emp->pan_image_name != "") {
-                          echo "emp_doc/" . $res_emp->pan_image_name;
-                        } else {
-                          echo "#";
-                        } ?>" target="_blank"><span class="label label-secondary demo-element">Download</span></a>
+              <a href="<?php if ($res_emp->pan_image_name != "") echo "emp_doc/" . $res_emp->pan_image_name;
+                        else echo "#"; ?>" target="_blank"><span class="label label-secondary demo-element">Download</span></a>
               <label class="compulsory"></label>
                <?php echo $res_emp->pan_image_name; ?>
                 </label>
@@ -581,9 +515,7 @@ if ($id != '') {
                   $reg = mysql_query($region1);
                   while ($res_region = mysql_fetch_object($reg)) {
                   ?>
-                    <option value="<?php echo $res_region->region_name; ?>" <?php if ($res_region->region_name == $res_emp->region) {
-                                                                              echo "Selected='Selected'";
-                                                                            } ?>><?php echo $res_region->region_name; ?></option>
+                    <option value="<?php echo $res_region->region_name; ?>" <?php if ($res_region->region_name == $res_emp->region) echo "Selected='Selected'"; ?>><?php echo $res_region->region_name; ?></option>
                   <?php
 
                   }
@@ -611,20 +543,25 @@ if ($id != '') {
                                 </select>
                               </div>
 
-             <div class="form-group col-sm-1"></div>
 
-                        <div class="form-group col-sm-2">
+
+
+              <div class="form-group col-sm-1"></div>
+
+              <div class="form-group col-sm-2">
                               <label for="name">
                                 <label class="compulsory"></label>
                                 Education qualification
                               </label>
                             </div>
               <div class="form-group col-sm-3">
-                              <input type="text" id="edu_qual" name="edu_qual" class="form-control parsley-validated" placeholder="Education Qualification" value="<?php echo $res_emp->education_qualif; ?>"  tabindex="4">
+                              <input type="text" id="edu_qual" name="edu_qual" class="form-control parsley-validated" placeholder="Education Qualification" value="<?php echo $res_emp->education_qualif; ?>" tabindex="4">
                               <span id="edu_qual" style="color:red;"></span>
                             </div>
               <div class="clear"></div>
 
+
+              <div class="clear"></div>
               <div class="form-group col-sm-2">
                 <label for="name">
                   <label class="compulsory">*</label>
@@ -640,9 +577,7 @@ if ($id != '') {
                   $sql_region = mysql_query("select branch_name from hrms_branch where status='Y'");
                   while ($res_region = mysql_fetch_assoc($sql_region)) {
                   ?>
-                    <option value="<?php echo $res_region['branch_name']; ?>" <?php if ($res_region['branch_name'] == $res_emp->pbranch) {
-                                                                                echo "Selected='Selected'";
-                                                                              } ?>><?php echo $res_region['branch_name']; ?></option>
+                    <option value="<?php echo $res_region['branch_name']; ?>" <?php if ($res_region['branch_name'] == $res_emp->pbranch) echo "Selected='Selected'"; ?>><?php echo $res_region['branch_name']; ?></option>
                   <?php
                   }
 
@@ -651,7 +586,6 @@ if ($id != '') {
               </div>
               <!-- col.sm.1 -->
               <div class="form-group col-sm-1"></div>
-
               <div class="form-group col-sm-2">
                 <label for="name">
 
@@ -666,9 +600,7 @@ if ($id != '') {
                   $qu3 = mysql_query($sql3);
                   while ($r3 = mysql_fetch_array($qu3)) {
                   ?>
-                    <option value="<?php echo $r3['state_name']; ?>" <?php if ($res_emp->state == $r3['state_name']) {
-                                                                        echo "Selected='Selected'";
-                                                                      } ?>><?php echo $r3['state_name']; ?></option>
+                    <option value="<?php echo $r3['state_name']; ?>" <?php if ($res_emp->state == $r3['state_name']) echo "Selected='Selected'"; ?>><?php echo $r3['state_name']; ?></option>
                   <?php
                   }
                   ?>
@@ -676,7 +608,6 @@ if ($id != '') {
               </div>
               <!-- clear -->
               <div class="clear"></div>
-
               <div class="form-group col-sm-2">
                 <label for="name">
                   <label class="compulsory">*</label>
@@ -691,7 +622,6 @@ if ($id != '') {
               </div>
               <!-- col.sm.1 -->
               <div class="form-group col-sm-1"></div>
-
               <div class="form-group col-sm-2">
                 <label for="name">
                   <label class="compulsory">*</label>
@@ -706,7 +636,6 @@ if ($id != '') {
               </div>
               <!-- clear -->
               <div class="clear"></div>
-
               <div class="form-group col-sm-2">
                 <label for="name">
                   <label class="compulsory">*</label>
@@ -719,8 +648,6 @@ if ($id != '') {
               </div>
               <!-- col.sm.1 -->
               <div class="form-group col-sm-1"></div>
-
-
               <div class="form-group col-sm-2">
                 <label for="name">
                   <font color="red">* </font>Mobile no1
@@ -732,7 +659,6 @@ if ($id != '') {
               </div>
               <!-- clear -->
               <div class="clear"></div>
-
               <div class="form-group col-sm-2">
                 <label for="name">
                   <label class="compulsory"></label>
@@ -746,10 +672,9 @@ if ($id != '') {
               </div>
               <!-- col.sm.1 -->
               <div class="form-group col-sm-1"></div>
-
               <div class="form-group col-sm-2">
                 <label for="name">
-                  <label class="compulsory">* </label>
+                  <label class="compulsory"></label>
                   E-mail Id
                 </label>
               </div>
@@ -759,7 +684,6 @@ if ($id != '') {
               </div>
               <!-- clear -->
               <div class="clear"></div>
-
               <div class="form-group col-sm-2">
                 <label for="name">
                   <label class="compulsory"></label>
@@ -770,32 +694,18 @@ if ($id != '') {
 
                 <select name="report_to" class="form-control parsley-validated chosen-select" id="report_to" tabindex="22">
                   <option value="Select" selected="selected">Select</option>
-                  <!-- <option  value="Supervisor"<?php if ($res_emp->report_to == 'Supervisor') {
-                                                    echo 'selected="selected"';
-                                                  }  ?>>Supervisor</option>
-                  <option  value="Manager"<?php if ($res_emp->report_to == 'Manager') {
-                                            echo 'selected="selected"';
-                                          }  ?>>Manager</option>
-				  <option  value="Regional Head"<?php if ($res_emp->report_to == 'Regional Head') {
-                                          echo 'selected="selected"';
-                                        }  ?>>Regional Head</option>
-				  <option  value="General Manager"<?php if ($res_emp->report_to == 'General Manager') {
-                                            echo 'selected="selected"';
-                                          }  ?>>General Manager</option>
-				  <option  value="Director"<?php if ($res_emp->report_to == 'Director') {
-                                      echo 'selected="selected"';
-                                    }  ?>>Director</option>
-				  <option  value="AGM"<?php if ($res_emp->report_to == 'AGM') {
-                                echo 'selected="selected"';
-                              }  ?>>AGM</option>
-				  <option  value="Cashier"<?php if ($res_emp->report_to == 'Cashier') {
-                                    echo 'selected="selected"';
-                                  }  ?>>Cashier</option>-->
+
+                  <option value="Manager" <?php if ($res_emp->report_to == 'Manager')  echo 'selected="selected"';  ?>>Manager</option>
+                  <option value="Sr.Manager" <?php if ($res_emp->report_to == 'Sr.Manager')  echo 'selected="selected"';  ?>>Sr.Manager</option>
+                  <option value="Risk Manager" <?php if ($res_emp->report_to == 'Risk Manager')  echo 'selected="selected"';  ?>>Risk Manager</option>
+                  <option value="General Manager" <?php if ($res_emp->report_to == 'General Manager')  echo 'selected="selected"';  ?>>General Manager</option>
+
+                  <option value="AGM" <?php if ($res_emp->report_to == 'AGM')  echo 'selected="selected"';  ?>>AGM</option>
+
                 </select>
               </div>
               <!-- col.sm.1 -->
               <div class="form-group col-sm-1"></div>
-
               <div class="form-group col-sm-2">
                 <label for="name">
                   <label class="compulsory"></label>
@@ -806,26 +716,15 @@ if ($id != '') {
 
                 <select name="notice_period" class="form-control parsley-validated chosen-select" id="notice_period" tabindex="23">
                   <option value="Select" selected="selected">Select</option>
-                  <option value="Nil" <?php if ($res_emp->exp_sal == 'Nil') {
-                                        echo 'selected="selected"';
-                                      }  ?>>Nil</option>
-                  <option value="30 Days" <?php if ($res_emp->exp_sal == '30 Days') {
-                                            echo 'selected="selected"';
-                                          }  ?>>30 Days</option>
-                  <option value="45 Days" <?php if ($res_emp->exp_sal == '45 Days') {
-                                            echo 'selected="selected"';
-                                          }  ?>>45 Days</option>
-                  <option value="60 Days" <?php if ($res_emp->exp_sal == '60 Days') {
-                                            echo 'selected="selected"';
-                                          }  ?>>60 Days</option>
-                  <option value="90 Days" <?php if ($res_emp->exp_sal == '60 Days') {
-                                            echo 'selected="selected"';
-                                          }  ?>>90 Days</option>
+                  <option value="Nil" <?php if ($res_emp->exp_sal == 'Nil')  echo 'selected="selected"';  ?>>Nil</option>
+                  <option value="30 Days" <?php if ($res_emp->exp_sal == '30 Days')  echo 'selected="selected"';  ?>>30 Days</option>
+                  <option value="45 Days" <?php if ($res_emp->exp_sal == '45 Days')  echo 'selected="selected"';  ?>>45 Days</option>
+                  <option value="60 Days" <?php if ($res_emp->exp_sal == '60 Days')  echo 'selected="selected"';  ?>>60 Days</option>
+                  <option value="90 Days" <?php if ($res_emp->exp_sal == '60 Days')  echo 'selected="selected"';  ?>>90 Days</option>
                 </select>
               </div>
               <!-- clear -->
               <div class="clear"></div>
-
               <div class="form-group col-sm-2">
                 <label for="name">
                   <label class="compulsory"></label>
@@ -835,17 +734,12 @@ if ($id != '') {
               <div class="form-group col-sm-3">
                 <select id="mstatus" name="mstatus" class="form-control parsley-validated chosen-select" data-required="true" tabindex="24">
                   <option value="">Select </option>
-                  <option value="Married" <?php if ($res_emp->mstatus == 'Married') {
-                                            echo 'selected="selected"';
-                                          }  ?>>Married</option>
-                  <option value="UnMarried" <?php if ($res_emp->mstatus == 'UnMarried') {
-                                              echo 'selected="selected"';
-                                            }  ?>>UnMarried</option>
+                  <option value="Married" <?php if ($res_emp->mstatus == 'Married')  echo 'selected="selected"';  ?>>Married</option>
+                  <option value="UnMarried" <?php if ($res_emp->mstatus == 'UnMarried')  echo 'selected="selected"';  ?>>UnMarried</option>
                 </select>
               </div>
               <!-- col.sm.1 -->
               <div class="form-group col-sm-1"></div>
-
               <div class="form-group col-sm-2">
                 <label for="name">
                   <label class="compulsory"></label>
@@ -864,6 +758,7 @@ if ($id != '') {
                     <option value="AB-" <?php  if ($res_emp->blood_group == 'AB-'){ echo 'selected="selected"'; }  ?>>AB-</option>
                     <option value="O+"  <?php  if ($res_emp->blood_group == 'O+'){ echo 'selected="selected"'; }  ?>>O+</option>
                     <option value="O-" <?php  if ($res_emp->blood_group == 'O-'){ echo 'selected="selected"'; }  ?>>O-</option>
+
                   </select>
                 </div>
               <!--<div class="clear"></div>
@@ -872,7 +767,6 @@ if ($id != '') {
               </div>-->
               <!-- clear -->
               <div class="clear"></div>
-
               <div class="form-group col-sm-2">
                 <label for="name">
                   <label class="compulsory"></label>
@@ -883,36 +777,19 @@ if ($id != '') {
 
                 <select id="religion" name="religion" class="form-control parsley-validated chosen-select" tabindex="26">
                   <option value="">Select </option>
-                  <option value="Hinduism" <?php if ($res_emp->religion == 'Hinduism') {
-                                              echo 'selected="selected"';
-                                            }  ?>>Hinduism</option>
-                  <option value="Islam" <?php if ($res_emp->religion == 'Islam') {
-                                          echo 'selected="selected"';
-                                        }  ?>>Islam</option>
-                  <option value="Christianity" <?php if ($res_emp->religion == 'Christianity') {
-                                                  echo 'selected="selected"';
-                                                }  ?>>Christianity</option>
-                  <option value="Sikhism" <?php if ($res_emp->religion == 'Sikhism') {
-                                            echo 'selected="selected"';
-                                          }  ?>>Sikhism</option>
-                  <option value="Buddhism" <?php if ($res_emp->religion == 'Buddhism') {
-                                              echo 'selected="selected"';
-                                            }  ?>>Buddhism</option>
-                  <option value="Jainism" <?php if ($res_emp->religion == 'Jainism') {
-                                            echo 'selected="selected"';
-                                          }  ?>>Jainism</option>
-                  <option value="Zoroastrianism" <?php if ($res_emp->religion == 'Zoroastrianism') {
-                                                    echo 'selected="selected"';
-                                                  }  ?>>Zoroastrianism</option>
-                  <option value="Judaism" <?php if ($res_emp->religion == 'Judaism') {
-                                            echo 'selected="selected"';
-                                          }  ?>>Judaism</option>
+                  <option value="Hinduism" <?php if ($res_emp->religion == 'Hinduism')  echo 'selected="selected"';  ?>>Hinduism</option>
+                  <option value="Islam" <?php if ($res_emp->religion == 'Islam')  echo 'selected="selected"';  ?>>Islam</option>
+                  <option value="Christianity" <?php if ($res_emp->religion == 'Christianity')  echo 'selected="selected"';  ?>>Christianity</option>
+                  <option value="Sikhism" <?php if ($res_emp->religion == 'Sikhism')  echo 'selected="selected"';  ?>>Sikhism</option>
+                  <option value="Buddhism" <?php if ($res_emp->religion == 'Buddhism')  echo 'selected="selected"';  ?>>Buddhism</option>
+                  <option value="Jainism" <?php if ($res_emp->religion == 'Jainism')  echo 'selected="selected"';  ?>>Jainism</option>
+                  <option value="Zoroastrianism" <?php if ($res_emp->religion == 'Zoroastrianism')  echo 'selected="selected"';  ?>>Zoroastrianism</option>
+                  <option value="Judaism" <?php if ($res_emp->religion == 'Judaism')  echo 'selected="selected"';  ?>>Judaism</option>
 
                 </select>
               </div>
               <!-- col.sm.1 -->
               <div class="form-group col-sm-1"></div>
-
               <div class="form-group col-sm-2">
                 <label for="name">
                   <label class="compulsory"></label>
@@ -927,9 +804,7 @@ if ($id != '') {
                   // $qu3=mysql_query($sql_bank);
                   while ($r3_bank = mysql_fetch_array($sql_bank)) {
                   ?>
-                    <option value="<?php echo $r3_bank['bank_name']; ?>" <?php if ($res_emp->bank_name == $r3_bank['bank_name']) {
-                                                                            echo "Selected='Selected'";
-                                                                          } ?>><?php echo $r3_bank['bank_name']; ?></option>
+                    <option value="<?php echo $r3_bank['bank_name']; ?>" <?php if ($res_emp->bank_name == $r3_bank['bank_name']) echo "Selected='Selected'"; ?>><?php echo $r3_bank['bank_name']; ?></option>
                   <?php
                   }
                   ?>
@@ -938,7 +813,6 @@ if ($id != '') {
               <!--Branch Name-->
               <!-- clear -->
               <div class="clear"></div>
-
               <div class="form-group col-sm-2">
                 <label for="name">
                   <label class="compulsory"></label>
@@ -947,11 +821,10 @@ if ($id != '') {
               </div>
               <div class="form-group col-sm-3">
 
-                <input type="text" id="branch_name" name="branch_name" class="form-control parsley-validated" data-required="true" placeholder="Enter Branch" tabindex="28" value="<?php echo $res_emp->branch_name; ?>" onkeypress="return IsAlphaNumeric(event);" <?php if (!in_array($per, $visib) && $id != '') { ?> readonly="readonly" <?php } ?>>
+                <input type="text" id="branch_name" name="branch_name" class="form-control parsley-validated" data-required="true" placeholder="Enter Branch" tabindex="28" value="<?php echo $res_emp->branch_name; ?>" onkeypress="return IsAlphaNumeric(event);" <?php if (!in_array($per, $visib) && $id != '') { ?> readonly<?php } ?>>
               </div>
               <!-- col.sm.1 -->
               <div class="form-group col-sm-1"></div>
-
               <!--Account No-->
               <div class="form-group col-sm-2">
                 <label for="name">
@@ -961,11 +834,10 @@ if ($id != '') {
               </div>
               <div class="form-group col-sm-3">
 
-                <input type="text" id="account_no" name="account_no" class="form-control parsley-validated" data-required="true" placeholder="Enter Account Number" tabindex="29" value="<?php echo $res_emp->account_no; ?>" <?php if ($id == '') { ?> onblur="dublicate_account()" <?php } ?> onkeypress="return IsAlphaNumeric(event);" <?php if (!in_array($per, $visib) && $id != '') { ?> readonly="readonly" <?php } ?>>
+                <input type="text" id="account_no" name="account_no" class="form-control parsley-validated" data-required="true" placeholder="Enter Account Number" tabindex="29" value="<?php echo $res_emp->account_no; ?>" <?php if ($id == '') { ?> onblur="dublicate_pan1()" <?php } ?> onkeypress="return IsAlphaNumeric(event);" <?php if (!in_array($per, $visib) && $id != '') { ?> readonly<?php } ?>>
               </div>
               <!-- clear -->
               <div class="clear"></div>
-
               <!--IFSC Code-->
               <div class="form-group col-sm-2">
                 <label for="name">
@@ -983,7 +855,6 @@ if ($id != '') {
               <!---------------- new-->
 
               <div class="form-group col-sm-1"></div>
-
               <!--epf No-->
               <div class="form-group col-sm-2">
                 <label for="name">
@@ -997,7 +868,6 @@ if ($id != '') {
               </div>
               <!-- clear -->
               <div class="clear"></div>
-
               <!--esi Code-->
               <div class="form-group col-sm-2">
                 <label for="name">
@@ -1010,8 +880,8 @@ if ($id != '') {
                 <input type="text" id="esi_no" name="esi_no" class="form-control parsley-validated" data-required="true" placeholder="ESI Number" tabindex="30" value="<?php echo $res_emp->esi_no; ?>">
               </div>
 
-              <div class="form-group col-sm-1"></div>
 
+              <div class="form-group col-sm-1"></div>
               <!--UAN No-->
               <div class="form-group col-sm-2">
                 <label for="name">
@@ -1023,28 +893,39 @@ if ($id != '') {
 
                 <input type="text" id="uan_no" name="uan_no" class="form-control parsley-validated" data-required="true" placeholder="UAN Number" tabindex="30" value="<?php echo $res_emp->uan_no; ?>">
               </div>
-              <!-- clear -->
-              <div class="clear"></div>
-
-
-              <?php if ($per == "Admin" || $per == "HR") {
-              ?>
-                <div class="form-group col-sm-2">
-                  <label for="name">
-                    <label class="compulsory"></label>
-                    Eligible for Allowance
-                  </label>
-                </div>
-                <div class="form-group col-sm-3">
-                  <?php if ($res_emp->allowance_eligible != '') { ?>
-                    <input type="checkbox" id="allowance_eligible" name="allowance_eligible" data-required="true" value="Yes" checked="checked">Yes
-                  <?php } else { ?>
-                    <input type="checkbox" id="allowance_eligible" name="allowance_eligible" data-required="true" value="Yes">Yes
-                  <?php } ?>
-                </div>
-              <?php } ?>
 
               <div class="clear"> </div>
+
+              <div class="form-group col-sm-2">
+                          <label for="name">
+                            <label class="compulsory">*</label>
+                            Employment Type
+                          </label>
+                        </div>
+                  
+          <div class="form-group col-sm-3">
+                            <select id="employment_types" name="employment_types" class="form-control parsley-validated chosen-select" data-required="true" tabindex="2">
+                              <option value="">Select</option>
+                              <option value="Radiant" <?php if ($res_emp->employment_type == 'Radiant')  echo 'selected="selected"';  ?>>Radiant</option>
+                              <option value="Hired" <?php if ($res_emp->employment_type == 'Hired')  echo 'selected="selected"';  ?>>Hired</option>
+                            </select>
+                          </div>
+
+ <div id="to_append_vendor" class="to_append_vendor_name" style="display:none">
+<div class="form-group col-sm-1"></div>
+<div class="form-group col-sm-2">
+                <label for="name">
+                  <label class="compulsory">*</label>
+                  Vendor Name
+                </label>
+              </div>
+<div class="form-group col-sm-3">
+                <input type="text" id="vend_apnd" name="vend_apnd" class="form-control parsley-validated" placeholder="Vendor Name" value="<?php echo $res_emp->vendor_name; ?>"  tabindex="4">
+                <span id="vend_apnd" style="color:red;"></span>
+              </div>
+</div>
+
+ <div class="clear"></div>
               <?php
               if ($_GET["id"] == "") {
               ?>
@@ -1132,8 +1013,10 @@ if ($id != '') {
               }
               ?>
 
-              <div class="clear"> </div>
 
+
+
+<div class="clear"> </div>
 
               </table>
               <div class="clear"> </div>
@@ -1241,12 +1124,8 @@ if ($id != '') {
                   </label>
                   <select id="ctg1" name="ctg1" class="form-control parsley-validated chosen-select" tabindex="43">
                     <option value="">Select </option>
-                    <option value="Fresher" <?php if ($res_emp->ctg1 == 'Fresher') {
-                                              echo 'selected="selected"';
-                                            }  ?>>Fresher</option>
-                    <option value="Experience" <?php if ($res_emp->ctg1 == 'Experience') {
-                                                  echo 'selected="selected"';
-                                                }  ?>>Experience</option>
+                    <option value="Fresher" <?php if ($res_emp->ctg1 == 'Fresher')  echo 'selected="selected"';  ?>>Fresher</option>
+                    <option value="Experience" <?php if ($res_emp->ctg1 == 'Experience')  echo 'selected="selected"';  ?>>Experience</option>
                   </select>
                 </div>
                 <!--<div class="form-group col-sm-3">
@@ -1332,32 +1211,79 @@ if ($id != '') {
 
 
                 <div class="clear"></div>
+                <h3 class="portlet-title"> <u>Salary Details </u> </h3>
+                <div class="form-group col-sm-2">
+                  <label for="name">Basic Pay
+                  </label>
+                  <input name="basic_pay" type="text" class="form-control pay gud_pay" id="basic_pay" size="10" value="<?php echo $res_emp->basic_pay ?>" readonly="readonly" onkeyup="gud_pay()" />
+                </div>
+                <div class="form-group col-sm-2">
+                  <label for="name">HRA
+                  </label>
+                  <input name="hra" type="text" class="form-control pay gud_pay" id="hra" size="10" value="<?php echo $res_emp->hra ?>" style="background-color : #FBD5EC;" readonly="readonly" onkeyup="gud_pay()" />
+                </div>
+                <div class="form-group col-sm-2">
+                  <label for="name">Conveyance
+                  </label>
+                  <input name="conveyance" type="text" class="form-control pay gud_pay" id="conveyance" size="10" value="<?php echo $res_emp->convey ?>" style="background-color : #FBD5EC;" readonly="readonly" onkeyup="gud_pay()" />
+                </div>
 
+                <div class="form-group col-sm-2">
+                  <label for="name">Medical
+                  </label>
+                  <input name="medical" type="text" class="form-control pay gud_pay" id="medical" size="10" value="<?php echo $sal->medical ?>" style="background-color : #FBD5EC;" readonly="readonly" onkeyup="gud_pay()" />
+                </div>
+
+                <div class="form-group col-sm-2">
+                  <label for="name">LTA
+                  </label>
+                  <input name="bonus" type="text" class="form-control pay gud_pay" id="bonus" size="10" value="<?php echo $res_emp->bonus ?>" style="background-color : #FBD5EC;" readonly="readonly" onkeyup="gud_pay()" />
+                </div>
+                <div class="form-group col-sm-2">
+                  <label for="name"> Other Allowance
+                  </label>
+                  <input name="oth_all" type="text" class="form-control pay gud_pay" id="oth_all" size="10" value="<?php echo $res_emp->other_allc ?>" style="background-color : #FBD5EC;" readonly="readonly" onkeyup="gud_pay()" />
+                </div>
+
+
+                <!-- <div class="form-group col-sm-2">
+                                          <label for="name">5 (s) </label>
+                                          <input name="amt_5" type="text" class="form-control" id="amt_5" size="10" value="<?php echo $row1->amt_5; ?>" onkeydown="cal_deno()" onchange="cal_deno()" onkeyup="cal_deno()" onkeypress="cal_deno()" />
+                                        </div>
+                                        <div class="form-group col-sm-2">
+                                          <label for="name">Coin (s) </label>
+                                          <input name="coins" type="text" class="form-control" id="coins" size="10" value="<?php echo $row1->coins; ?>"  onkeydown="cal_deno()" onchange="cal_deno()" onkeyup="cal_deno()" onkeypress="cal_deno()" />
+                                        </div>-->
+                <div class="form-group col-sm-2">
+                  <label for="name">Fixed Salary </label>
+                  <input name="gross_sal1" type="text" class="form-control" id="gross_sal1" size="12" value="<?php echo $res_emp->gross_sal ?>" onkeyup="cal_deno()" />
+                </div>
+                </span>
 
                 <div class="clear"></div>
                 <div class="form-group col-sm-3">
 
-                  <button type="submit" name="submit" id="submit" class="btn btn-danger search_btn" style="margin-top: 25px;" tabindex="56"><?php if ($id == '') { ?> Save Employee Details <?php } else { ?>Update Employee Details</button>
-
-                  <?php if ($per == 'Admin') {
-                                                                                                                                                                                              $sql = mysql_query("select  * from hrms_empdet hr join radiant_ce rc on rc.ce_id=hr.emp_id where hr.r_id='" . $_GET['id'] . "'");
-                                                                                                                                                                                              $n = mysql_num_rows($sql);
-                                                                                                                                                                                              if ($n > 0) {
-                  ?>
+                  <button type="submit" name="submit" id="submit" class="btn btn-danger search_btn" style="margin-top: 25px;" tabindex="56"><?php if ($id == '') { ?> Save Employee Details <?php } else { ?>Update Employee Details</button><?php if ($per == 'Admin') {
+                                                                                                                                                                                                                                          $sql = mysql_query("select  * from hrms_empdet hr join radiant_ce rc on rc.ce_id=hr.emp_id where hr.r_id='" . $_GET['id'] . "'");
+                                                                                                                                                                                                                                          $n = mysql_num_rows($sql);
+                                                                                                                                                                                                                                          if ($n > 0) {
+                                                                                                                                                                                                                                        ?>
                       <button type="button" name="submit1" id="submit1" class="btn btn-danger search_btn" style="margin-top: 25px;" tabindex="56" disabled>Merge</button>
                     <?php
-                                                                                                                                                                                              } else { ?>
-                      <button type="button" name="submit1" id="submit1" class="btn btn-danger search_btn" style="margin-top: 25px;" tabindex="56">Merge</button><?php }
-                                                                                                                                                                                            } ?>
-                <?php  } ?>
-                <br>
-                <?php if ($per == 'Admin') {
-                  echo $res_emp->updated_by . '-' . $res_emp->updated_date;
-                }
-                ?>
+                                                                                                                                                                                                                                          } else { ?>
+                      <button type="button" name="submit1" id="submit1" class="btn btn-danger search_btn" style="margin-top: 25px;" tabindex="56">Merge</button>
+                      <?php
+                                                                                                                                                                                                                                          }
+
+                      ?><?php } ?>
+                    <?php  } ?>
+                    <br>
+                    <?php if ($per == 'Admin') {
+                      echo $res_emp->updated_by . '-' . $res_emp->updated_date;
+                    }
+                    ?>
                 </div>
 
-              </div>
             </form>
           </div>
 
@@ -1370,10 +1296,12 @@ if ($id != '') {
       </form>
       <div class="clear"></div>
       <div class="portlet">
-        <h3 class="portlet-title"> <u>Customize Search</u> </h3>
+        <h3 class="portlet-title"> <u> 
+          Customize Search</u> </h3>
         <form id="demo-validation" action="" data-validate="parsley" class="form parsley-form">
           <div class="form-group col-sm-3">
-            <label for="name">Search Criteria </label>
+                    <label class="compulsory">*</label>
+                    <label for="name"> Search Criteria </label>
             <select id="search" name="search" class="form-control parsley-validated chosen-select searchCriteria" data-required="true" tabindex="57">
               <option value="">Select</option>
               <option value="all">All</option>
@@ -1396,9 +1324,7 @@ if ($id != '') {
               $reg_sql = mysql_query($sql_reg);
               while ($log_region = mysql_fetch_object($reg_sql)) {
               ?>
-                <option value="<?php echo $log_region->region_name; ?>" <?php if ($log_region->region_name == $res_emp->region_name) {
-                                                                          echo "Selected='Selected'";
-                                                                        } ?>><?php echo $log_region->region_name; ?></option>
+                <option value="<?php echo $log_region->region_name; ?>" <?php if ($log_region->region_name == $res_emp->region_name) echo "Selected='Selected'"; ?>><?php echo $log_region->region_name; ?></option>
               <?php
               }
               ?>
@@ -1433,6 +1359,7 @@ if ($id != '') {
 </div>
 <!-- /.container -->
 
+
 <style type="text/css">
   #branch_name-error,
   #state-error,
@@ -1444,7 +1371,6 @@ if ($id != '') {
     left: 10px;
     top: 77px;
   }
-
   #popupDatepicker1_modified:focus {
       border-color: #007bff;
       box-shadow: 0 0 8px rgba(0, 123, 255, 0.25);
@@ -1472,8 +1398,11 @@ if ($id != '') {
 		gender: {
           required: true
         },
-		
         replace_id: {
+          required: true
+        },
+		
+		city: {
           required: true
         },
         cname: {
@@ -1500,12 +1429,6 @@ if ($id != '') {
           required: true
         },
         address: {
-          required: true
-        },
-		city: {
-          required: true
-        },
-		ini_sal: {
           required: true
         },
         mobile1: {
@@ -1538,7 +1461,9 @@ if ($id != '') {
           required: true,
           number: false
         },
-		
+        gender: {
+          required: true
+        },
         phone: {
           number: true
         },
@@ -1554,26 +1479,14 @@ if ($id != '') {
           minlength: 10
         },
         email: {
-          required: true
-        },
-        pancard: {
-          required: true
-        },
-        aadharcard: {
-          required: true
-        },
-        empappfrm: {
-          required: true
-        },
-        backfrm: {
-          required: true
-        },
-        edudocfrm: {
-          required: true
+          email: true
         },
         division: {
           required: true
         },
+        employment_types:{
+          required: true
+        }
         /*ce_status:{
           required:true   
         }*/
@@ -1590,6 +1503,10 @@ if ($id != '') {
         },
         replace_id: {
           required: 'Replacement Emp Id.'
+        },
+		
+		city: {
+          required: 'Select City.'
         },
         cname: {
           required: 'Enter The Employee Name.',
@@ -1616,12 +1533,6 @@ if ($id != '') {
         address: {
           required: 'Enter Address'
         },
-		city: {
-          required: 'Select The City'
-        },
-		ini_sal: {
-          required: 'Enter Salary of DOJ'
-        },
         aadhar_card_no: {
           required: 'Enter Aadhar No.',
           number: 'Enter Valid Aadhar No'
@@ -1633,11 +1544,11 @@ if ($id != '') {
         pan_card_no: {
           required: 'Enter PanCard No.'
         },
-        ifsc_code: {
-            //required: 'Enter valid IFSC Code'
+       ifsc_code: {
+          //required: 'Enter valid IFSC Code'
           minlength: "IFSC Code must be in 11 digits."
 
-        },
+        }, 
         dob: {
           required: 'Select Date.'
         },
@@ -1648,7 +1559,10 @@ if ($id != '') {
           required: 'Enter Father Name.',
           number: 'Enter valid Employee Name.'
         },
-         phone: {
+        gender: {
+          required: 'Select Gender.'
+        },
+        phone: {
           number: 'Enter Valid Mobile No'
         },
         pin: {
@@ -1656,7 +1570,7 @@ if ($id != '') {
           number: 'Enter Numeric Only'
         },
         email: {
-          required: 'Enter Email ID.'
+          email: 'Enter Vaild Email.'
         },
         types: {
           required: 'Select Type.'
@@ -1667,6 +1581,13 @@ if ($id != '') {
         },
         division: {
           required: 'Select Division'
+        },
+        vend_apnd: {
+                        required: "Vendor Name is required"
+                    },
+        employment_types:{
+
+          required: "Enter employment type"
         },
         inactv_remarks:{
           required: 'Enter Remarks'
@@ -1686,14 +1607,14 @@ if ($id != '') {
     //enableTime: true,
     dateFormat: "d-m-Y",
   });
+  
     $('.status_ld').hide();
-
     $("a[name=addRow]").click(function() {
       // Code between here will only run when the a link is clicked and has a name of addRow
       $("table#table1 tr:last").after('<tr><td><img class="delete" alt="delete" src="@Url.Content("~/content/delete_icon.png")" /></td></tr>');
       return false;
     });
-    load_reporto()
+    //	load_reporto()
     load_status()
     load_location()
     //	cal_deno()
@@ -1749,7 +1670,6 @@ if ($id != '') {
       $("#age_id").text("");
       $("#submit").show();
     }
-
 
   });
 
@@ -1830,15 +1750,14 @@ if ($id != '') {
   });
 
   function search_key(search_type, page_start) {
-
     if ($('#keyword').val() != '' || $('#search').val() != '' || $('#search').val() == 'all') {
-
+      $('#keyword').removeClass('error_dispaly');
       tbl_search = '';
 
       $.ajax({
         type: "POST",
         url: "HRMS/AjaxReference/hrmsLoadData.php",
-        data: 'pgn=1&start_limit=' + page_start + '&tbl_search=' + tbl_search + '&per_page=' + $('#per_page').val() + '&end_limit=10&types=2&load=1&pid=emp_data&search=' + $('#search').val() + '&keyword=' + $('#keyword').val() + '&region=' + $('#region').val(),
+        data: 'pgn=1&start_limit=' + page_start + '&tbl_search=' + tbl_search + '&per_page=' + $('#per_page').val() + '&end_limit=10&types=2&load=1&pid=emp_data_rpf&search=' + $('#search').val() + '&keyword=' + $('#keyword').val() + '&region=' + $('#region').val(),
         beforeSend: function() {
           $('#view_details_indu').html('<img src="" alt="">');
         },
@@ -1847,14 +1766,12 @@ if ($id != '') {
           $('.search_field').css('display', '');
 
 
-
 $("#to_add_empdata_datatable").DataTable({ ordering: false});
         }
       });
     } else {
-
+      //  $('#keyword').addClass('error_dispaly');
       $(".selectboxErr").css('display', 'inline');
-
     }
   }
 
@@ -2139,6 +2056,19 @@ $("#to_add_empdata_datatable").DataTable({ ordering: false});
   }
 
   $(document).ready(function() {
+
+  if($('#employment_types').val()=='Hired')
+  {
+    $('#vend_apnd').rules('add', {
+                    required: true
+                });
+       $('#to_append_vendor').show();
+   }
+   else
+   {
+       $('#to_append_vendor').hide();
+   }
+
     var p = $("#uploadPreview");
 
     // prepare instant preview
@@ -2170,7 +2100,7 @@ $("#to_add_empdata_datatable").DataTable({ ordering: false});
     var id = $('#id').val();
     $.ajax({
       type: "POST",
-      url: "ajax/hrms_get_all_detail.php",
+      url: "HRMS/AjaxReference/hrmsGetAllDetails.php",
       data: {
         loc: desig,
         pid: "auto_id"
@@ -2188,100 +2118,32 @@ $("#to_add_empdata_datatable").DataTable({ ordering: false});
     //alert('hai');
     var region = $('#region1').val();
 
-    if (region == 'Mumbai') {
 
-      var gross_sal = $('#gross_sal1').val();
-      //alert(gross_sal);
-      var basic_pay = $('#basic_pay').val();
-      //alert(basic_pay);
-      var hra = Math.round((basic_pay) * (5 / 100));
-      var bonous = Math.round((gross_sal) * (8.33 / 100));
-      $('#hra').val(hra);
-      $('#conveyance').val(800);
-      $('#bonus').val(bonous);
-
-      //alert(oth_all);
-
-      if (gross_sal >= 30000) {
-        medical = 1250;
-      } else {
-        medical = 0;
-      }
-      $('#medical').val(medical);
-      var oth_all = parseInt(gross_sal) - (parseInt(basic_pay) + parseInt(hra) + parseInt(bonous) + 800 + parseInt(medical));
-      //var oth_all=(gross_sal)-(basic_pay+hra+bonous+800+medical);
-      $('#oth_all').val(oth_all);
-
-    } else if (region == 'Kolkata') {
-
-      //	alert("hai");
-      var gross_sal = $('#gross_sal1').val();
-      var basic_pay = gross_sal / 2;
-      var hra = basic_pay / 2;
-      //alert(gross_sal);
-      var bonous = 0;
-      $('#basic_pay').val(basic_pay);
-      $('#hra').val(hra);
-      $('#conveyance').val(800);
-      $('#bonus').val(bonous);
-
-      var medical = 0;
-
-      $('#medical').val(medical);
-      var oth_all = (parseInt(gross_sal)) - (parseInt(basic_pay) + parseInt(hra) + parseInt(bonous) + 800 + parseInt(medical));
-      $('#oth_all').val(oth_all)
+    var gross_sal = $('#gross_sal1').val();
+    var basic_pay = Math.round(gross_sal / 2);
+    var hra = Math.round(basic_pay / 2);
+    //alert(gross_sal);
+    //var  bonous=Math.round((gross_sal)*(8.33/100));
+    $('#basic_pay').val(basic_pay);
+    $('#hra').val(hra);
+    $('#conveyance').val(800);
 
 
-    } else if (region == 'Pune') {
-
-      //alert("hai");
-      //var gross_sal =$('#gross_sal1').val();
-      //var basic_pay=gross_sal/2;
-      //	var hra=basic_pay/2;
-      //alert(gross_sal);
-      var pdesign1 = $('#pdesig1').val();
-      var bonous = 0;
-      var p_basic = $('#basic_pay').val();
-      var p_hra = $('#hra').val();
-      var p_conv = $('#conveyance').val();
-      var p_othall = $('#oth_all').val();
-      if (pdesign1 == 'MBC') {
-        var p_bonus = Math.round((p_basic) * (8.33 / 100));
-      } else {
-        var p_bonus = 0;
-      }
-      //alert(p_bonus);
-
-      $('#bonus').val(p_bonus);
-
-      var gross_sal1 = (parseInt(p_basic) + parseInt(p_hra) + parseInt(p_conv) + parseInt(p_othall) + parseInt(p_bonus));
-      $('#gross_sal1').val(gross_sal1)
 
 
+    if (gross_sal >= 30000) {
+      medical = 1250;
+      lta = 1250;
     } else {
-      var gross_sal = $('#gross_sal1').val();
-      var basic_pay = gross_sal / 2;
-      var hra = basic_pay / 2;
-      //alert(gross_sal);
-      var bonous = Math.round((gross_sal) * (8.33 / 100));
-      $('#basic_pay').val(basic_pay);
-      $('#hra').val(hra);
-      $('#conveyance').val(800);
-      $('#bonus').val(bonous);
-
-
-      if (gross_sal >= 30000) {
-        medical = 1250;
-      } else {
-        medical = 0;
-      }
-      $('#medical').val(medical);
-      var oth_all = (parseInt(gross_sal)) - (parseInt(basic_pay) + parseInt(hra) + parseInt(bonous) + 800 + parseInt(medical));
-      $('#oth_all').val(oth_all);
-      /*	var esi=Math.round((gross_sal)*(1.75/100));
-      	$('#esi').val(esi);
-      	var epf=Math.round((basic_pay)*(15/100));*/
+      medical = 0;
+      lta = 0;
     }
+    $('#medical').val(medical);
+    $('#bonus').val(lta);
+    var oth_all = (parseInt(gross_sal)) - (parseInt(basic_pay) + parseInt(hra) + parseInt(lta) + 800 + parseInt(medical));
+    $('#oth_all').val(oth_all);
+
+
   }
   <?php if ($id == '') { ?>
 
@@ -2340,11 +2202,10 @@ $("#to_add_empdata_datatable").DataTable({ ordering: false});
 
       $('.status_ld').show();
 
-      
+
       $('#ce_status').rules('add', {
                     required: true
                 });
-          
 
       if($('#ce_status').val()=='Dormant')
       {
@@ -2356,10 +2217,12 @@ $("#to_add_empdata_datatable").DataTable({ ordering: false});
       }
       else{
         $('#to_append_inactive_status').hide();
-        //$('#ce_status').rules('remove', 'required');
+        
+       // $('#inactv_remarks').rules('remove', 'required');
       }
-    
-      //ce_status
+
+      
+      
     } else {
 
 
@@ -2373,8 +2236,18 @@ $("#to_add_empdata_datatable").DataTable({ ordering: false});
       $(".hide_sal").show();
     }
 
+    if (pdesig1 == 'GN') {
+      var hidden_agg_date = $("#hidden_agg_date").val();
+      $("#popupDatepicker2").val(hidden_agg_date);
+      $("#popupDatepicker2").attr('disabled', false);
+      // $("#popupDatepicker2").val(hidden_agg_date); 
+
+    } else {
+      $("#popupDatepicker2").val('00-00-0000');
+      $("#popupDatepicker2").attr('disabled', true);
+    }
+
   }
-  
   $("#submit1").click(function() {
     var emp_id = $("#emp_id").val();
     var cname = $("#cname").val();
@@ -2416,7 +2289,6 @@ $("#to_add_empdata_datatable").DataTable({ ordering: false});
       success: function(result) {
 
         alert("success");
-        $("#submit1").hide();
 
       },
     });
@@ -2452,23 +2324,6 @@ $("#to_add_empdata_datatable").DataTable({ ordering: false});
     return ret;
   }
 
-  //load report to
-
-  function load_reporto() {
-    $.ajax({
-      type: "POST",
-
-      url: "HRMS/AjaxReference/hrmsLoadData.php",
-      data: 'pid=emp_data_report&region_name=' + $('#pdesig').val() + '&id=' + $('#id').val(),
-      success: function(msg) {
-        //alert(msg);
-        $('#report_to').html(msg);
-        $('#report_to').trigger("chosen:updated");
-      }
-    });
-  }
-
-  // guwahati pay role
 
   function gud_pay() {
     var res = 0;
@@ -2484,7 +2339,7 @@ $("#to_add_empdata_datatable").DataTable({ ordering: false});
   }
 
   function dublicate_number() {
-   
+
     aadhar_card_no = $('#aadhar_card_no').val();
     //if(pincode!='') {
     $.ajax({
@@ -2517,7 +2372,6 @@ $("#to_add_empdata_datatable").DataTable({ ordering: false});
   function dublicate_pan() {
 
     pan_card_no = $('#pan_card_no').val();
-    //alert(pan_card_no);
     //if(pincode!='') {
     $.ajax({
       type: "POST",
@@ -2548,10 +2402,9 @@ $("#to_add_empdata_datatable").DataTable({ ordering: false});
     //}
   }
 
-  function dublicate_account() {
+  function dublicate_pan1() {
 
     account_no = $('#account_no').val();
-
     $.ajax({
       type: "POST",
       url: "HRMS/AjaxReference/load_data_new.php",
@@ -2578,7 +2431,7 @@ $("#to_add_empdata_datatable").DataTable({ ordering: false});
       }
     });
   }
-  //Dharanipathi //
+
   function dublicate_replaceid() {
 
     replace_id = $('#replace_id').val();
@@ -2627,10 +2480,9 @@ $("#to_add_empdata_datatable").DataTable({ ordering: false});
       }
     }
     if (len != 11) {
-     // $("#alt-ifsc").show("fadeIn");
-	 
+      //$("#alt-ifsc").show("fadeIn");
     } else {
-     // $("#alt-ifsc").hide("fadeOut");
+      //$("#alt-ifsc").hide("fadeOut");
     }
   }
   $('.spl').bind('input', function() {
@@ -2645,7 +2497,30 @@ $("#to_add_empdata_datatable").DataTable({ ordering: false});
   });
 
 
-  /*******************************For Remarks */
+
+$("#employment_types").change(function(){
+
+
+if($('#employment_types').val()=='Hired'){
+      
+  $('#vend_apnd').rules('add', {
+                required: true
+            });
+      
+  
+      $('#to_append_vendor').show();
+
+      
+}
+else
+{
+  $('#to_append_vendor').hide();
+
+}
+
+});
+
+/*******************************For Remarks */
 $("#ce_status").change(function(){
 
 if($('#ce_status').val()=='Dormant'){
@@ -2668,3 +2543,4 @@ if($('#ce_status').val()=='Dormant'){
 
 });
 </script>
+
