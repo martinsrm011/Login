@@ -1,516 +1,428 @@
 <?php
-$id 	= $_REQUEST['id'];
-$nav 	= $_REQUEST['nav'];
-$cust 	= $_REQUEST['cust'];
-$state 	= $_REQUEST['state'];
-$location = $_REQUEST['location'];
-$shop_idss = $_REQUEST['shop_id'];
-$ab = $_REQUEST['ab']
+
+include('CommonReference/date_picker_link.php');
+require_once __DIR__ . '/../DbConnection/dbConnect.php';
+$id = $_REQUEST['id'];
+$nav = $_REQUEST['nav'];
+$state = $_REQUEST['state'];
+
+
+$sql_user = mysqli_query($readConnection,"select * from login where user_name='".$user."' and status='Allowed'");
+$res_user = mysqli_fetch_array($sql_user);
+$login_regoin_exp = explode(',', $res_user['region']);
+$client_prev = $res_user['client_id'];
 ?>
+
 <style type="text/css">
-	.mapped {
-		color: green;
-		font-weight: bold;
-	}
-	.unmapped {
-		color: red;
-		font-weight: bold;
-	}
+.wrap_point {
+	word-wrap: break-word;
+	width: 200px;
+}
 </style>
+<link rel="stylesheet" type="text/css" href="css/bootstrap-multiselect.css" />
+<script type="text/javascript" src="js/bootstrap-multiselect.js" ></script>
 <div class="container">
-      <div class="row">
-        <div class="col-md-12 col-sm-11">
+  <div class="row" id="shop_aprove_id">
+    <div class="col-md-12 col-sm-11">
+	        <h3 class="portlet-title"> <u>RCE Point Master </u> </h3>
 
-          <div class="portlet">	    
-
-            <h3 class="portlet-title">
-              <u>RCE Mapping</u>
-            </h3>
-            <?php if($nav!='') { ?>
-               <div class="message_cu">
-              <div style="padding: 7px;" class="alert <?php if($nav==2 || $nav==4) { echo 'alert-danger'; } else { echo 'alert-success'; } ?>" align="center">
-                  <a aria-hidden="true" href="components-popups.html#" data-dismiss="alert" class="close">×</a>
-                  <b><?php
-                  $status_cu = array(1=>'New CE Point Mapping Details Successfully Added', 2=>'Sorry, Please Try Again', 3=>'Selected CE Point Mapping Details Updated', 4=>'Sorry, This Point Already Mapped', 5=>'Select Point Successfully Un Mapped', 6=>'Unable To Unmapped');
+      <div class="portlet" <?php if($id!='') { ?> >
+        <div class="clear"></div>
+        <div id="load_lod_shop1" style="display:none;float:left; width:100%; text-align:center; padding:3px;"  class="alert alert-danger"></div>
+        
+        <div id="load_lod_shop" style="display:none;float:left; width:100%;"  class="alert"></div>
+        
+        <?php if($nav!='') { ?>
+        <div class="message_cu">
+          <div style="padding: 7px;" class="alert <?php if($nav==2) { echo 'alert-danger'; } else { echo 'alert-success'; } ?>" align="center"> <a aria-hidden="true" href="components-popups.html#" data-dismiss="alert" class="close">×</a> <b>
+            <?php
+                  $status_cu = array(1=>'New Point Details Successfully Added', 2=>'Sorry, Please Try Again', 3=>'Select Point Details Updated', 4=>'Given Point Details Already Avilable. Please Search And Update');
                   echo $status_cu[$nav];
-                  ?> </b>
-              </div>
-              </div>
-              <?php }
+                  ?>
+            </b> </div>
+        </div>
+        <?php }
+		$sel_day = array();
 			  if($id!='') {
-				  	$sql_shopce = mysqli_query($readConnection,"SELECT * FROM shop_cemap WHERE map_id='".$id."'");
-					$res_shopce = mysqli_fetch_object($sql_shopce);
-					$shop_id = $res_shopce->shop_id;
+					$sql_shop = mysqli_query($readConnection,"SELECT * FROM shop_details WHERE shop_id='".$id."'");
+					$res_shop = mysqli_fetch_object($sql_shop);
+					$sel_beat=$res_shop->selected_beat_days;
+					$sel_day=explode(",",$sel_beat);
 			  }
+			  
+		      
 			   ?>
-			<div class="clear"></div>
-			<form id="demo-validation" action="<?php echo 'CommonReference/add_details.php?pid='.$pid; ?>" method="post" data-validate="parsley" class="form parsley-form">
-				<div >
-	            	<div class="form-group col-sm-3">
-	                  <label for="name"><label class="compulsory">*</label> Customer Name</label>	                  
-	                  <select id="cust_id" name="cust_id" class="form-control parsley-validated chosen-select" tabindex="1" disabled>
-				  <option value="">Select Customer Name</option>
-                  <?php
-				  
-				  $sql_cust = mysqli_query($readConnection,"SELECT a.client_name, b.cust_id, b.cust_name FROM client_details AS a JOIN cust_details AS b ON a.client_id=b.client_id WHERE b.status='Y' AND b.status='Y' ORDER BY a.client_name, b.cust_name");
-				  while($res_cus = mysqli_fetch_object($sql_cust)) {
-						echo '<option value="'.$res_cus->cust_id.'" ';						
-						if($cust==$res_cus->cust_id) { echo 'selected="selected"'; }						
-						echo '>'.$res_cus->client_name.' - '.$res_cus->cust_name.'</option>';
-				  }
-				  ?>
-				   </select>
-	              </div>
-	              <div class="form-group col-sm-3">
-	                  <label for="name"><label class="compulsory">*</label> Branch</label>
-                      <select id="branch" name="branch" class="form-control parsley-validated chosen-select"  onchange="branch_load()" tabindex="2" disabled>
-                      <option value="">Select Branch</option>
-				  		<?php
-						$sql_region = mysqli_query($readConnection,"SELECT region_id, region_name FROM region_master WHERE region_id IN (".$login_regoin.") AND  status='Y'");
-						while($res_region = mysqli_fetch_object($sql_region)) {
-							echo '<option value="'.$res_region->region_id.'" ';
-							if($state==$res_region->region_id) { echo 'selected="selected"'; }
-							echo '>'.$res_region->region_name.'</option>';	
-						}
-						?>
-                      </select>
-	               </div>
-                  <div class="form-group col-sm-3">
-	                  <label for="name"><label class="compulsory">*</label> Location</label>
-                      <select id="location" name="location" class="form-control parsley-validated location chosen-select" onchange="location_load()"  tabindex="2" disabled>
-                      	<option value="">Select Location</option>
-                      </select>
-	               </div>
-	               <div class="form-group col-sm-3">
-	                  <label for="name"><label class="compulsory">*</label> Point Name</label>
-                      <select id="shop" name="shop" class="form-control parsley-validated chosen-select" onchange="shop_load('1')" tabindex="2" disabled>
-                      	<option value="">Select Point Name</option>
-                      </select>
-                      
-	                  
-	               </div>
-	               <div class="clear"></div>
-                   <div class="form-group col-sm-12">
-                   <style type="text/css">
-				   	.shop_details td {
-						padding:3px;
-					}
-				   </style>
-	              <table cellpadding="0" cellspacing="0" border="0" align="center" width="80%" class="shop_details">
-                  	<tr><td colspan="6" align="center"><label>Point Location ID : <span id="point_id"><?php echo $shop_id; ?></span><input name="shop_code" type="hidden" id="shop_code" value="<?php echo $shop_id;?>" /></label></td></tr>
-                  	<tr><td colspan="6" align="center"><label style="color:#C12E2A; font-weight:bold;">SHOP DETAILS</label></td></tr>
-                    <tr><td width="200" align="right"><label>Point Type</label></td><td width="20" align="center"><b>:</b></td><td width="350"><label id="point_type"></label></td><td width="250" align="right"><label>Point PinCode</label></td><td width="20" align="center"><b>:</b></td><td width="350"><label id="point_pin"></label></td></tr>                   
-                   
-                    <tr><td align="right"><label>Customer Code</label></td><td align="center"><b>:</b></td><td><label id="cust_code"></label></td><td align="right"><label>Point Phone No</label></td><td align="center"><b>:</b></td><td><label id="point_phone"></label></td></tr>
-                    
-                    <tr><td align="right"><label>Customer Point Code</label></td><td align="center"><b>:</b></td><td><label id="cust_point_code"></label></td><td align="right"><label>Contact Name</label></td><td align="center"><b>:</b></td><td><label id="contact_name"></label></td></tr>
-                    
-                    <tr><td align="right"><label>Point Name</label></td><td align="center"><b>:</b></td><td><label id="point_name"></label></td><td align="right"><label>Contact Mobile No</label></td><td align="center"><b>:</b></td><td><label id="contact_mobile"></label></td></tr>
-                    
-                    <tr><td align="right"><label>Point Address</label></td><td align="center"><b>:</b></td><td><label  id="point_address"></label></td><td align="right"><label>Service Type Point Code</label></td><td align="center"><b>:</b></td><td><label id="service_type"></label></td></tr>
-                  </table>
-	              </div>
-                  <div class="clear"></div>
-                  <div class="form-group col-sm-3">
-	                  <label for="name"><label class="compulsory">*</label> CE Location</label>
-                      <select id="location1" name="location1" class="form-control parsley-validated location chosen-select"  tabindex="2">
-                      	<option value="">Select Location</option>
-                      </select>
-	               </div>
-                  <div class="form-group col-sm-2">
-	                  <label for="name"><label class="compulsory">*</label> Select Primary CE</label>
-	                  <input type="text" id="ces_1" name="primary_ce" class="form-control parsley-validated"  style ="background-color:#eee" data-required="true" value="<?php echo $res_shopce->pri_ce; ?>" placeholder="Sub Contractor Agreement End Date"  onkeydown="return false;">                
-	               </div>
-                  <div class="form-group  col-sm-1"><a data-toggle="modal" id="ce_1" href="#basicModal" class="btn update_locid"><button type="submit" class="btn btn-danger search_btn" name="submit" value="submit"  tabindex="14" style="margin-top: 23px;">Get IDs</button></a></div>
-                  <div class="form-group col-sm-2">
-	                  <label for="name"><label class="compulsory">*</label> Select Secondary CE</label>
-	                  <input type="text" id="ces_2" name="secondary" class="form-control parsley-validated" data-required="true" value="<?php echo $res_shopce->sec_ce; ?>" placeholder="Sub Contractor Agreement End Date" readonly="readonly" >                
-	               </div>
-                  <div class="form-group  col-sm-1"><a data-toggle="modal" id="ce_2" href="#basicModal" class="btn update_locid"><button type="submit" class="btn btn-danger search_btn" name="submit" value="submit"  tabindex="14" style="margin-top: 23px;">Get IDs</button></a></div>
-                  <div class="form-group col-sm-2">
-	                  <label for="name"><label class="compulsory">&nbsp;</label> Select Additional CE</label>
-	                  <input type="text" id="ces_3" name="additional" class="form-control parsley-validated" data-required="true" value="<?php echo $res_shopce->add_ce; ?>" placeholder="Sub Contractor Agreement End Date" readonly="readonly" >                
-	               </div>
-                  <div class="form-group  col-sm-1"><a data-toggle="modal" id="ce_3" href="#basicModal" class="btn update_locid"><button type="submit" class="btn btn-danger search_btn" name="submit" value="submit"  tabindex="14" style="margin-top: 23px;">Get IDs</button></a></div>
-	               
-	               <div class="clear"></div>
-	               <div class="form-group col-sm-2">
-                   <?php if($id!='') {
-						?>
-						<input type="hidden" name="id" value="<?php echo $id; ?>" />
-						<?php  
-					  }?>
-	                  <button type="submit" name="submit" id="submit" class="btn btn-danger search_btn" tabindex="18">Save CE mapping Details</button>
-                      
-	               </div>
-                   <?php if($res_shopce->pri_ce!='') { ?>
-                    <div class="form-group col-sm-3">
-                    	<a href="CommonReference/add_details.php?pid=rce_unmap&submit=submit&id=<?php echo $id; ?>"><button type="button" name="submit" id="submit" class="btn btn-danger search_btn" tabindex="18">Un Mapped This Point</button></a>
-	
-                    </div>
-					
-					  <?php    } ?>
-			 <div class="clear"></div>
-
-			 <?php 
-			 
-	if($per=='Admin' || $user=='surya') {
-	echo '<br>'.$res_shopce->update_by.' - '.$res_shopce->update_date;
-	} 	
-    
-	?>
-		         </div>
-
-	        </form>
-			
+        <div class="clear"></div>
+        <form id="shop_approve" action="<?php echo 'CommonReference/add_details.php?pid='.$pid; ?>" method="post" data-validate="parsley" class="form parsley-form" >
+          <div >
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">*</label>
+              Customer Name
+              </label>
+			  <?php
+			   $sql_cust = mysqli_query($readConnection,"SELECT a.client_name, b.cust_id, b.cust_name FROM client_details AS a JOIN cust_details AS b ON a.client_id=b.client_id WHERE b.status='Y' AND b.status='Y' and cust_id=".$res_shop->cust_id." ORDER BY a.client_name, b.cust_name");
+				  $res_cus = mysqli_fetch_object($sql_cust);
+							//echo 	$res_shop->cust_id."==".$res_cus->cust_id;	
+					if($res_shop->cust_id==$res_cus->cust_id) 					
+					$cust_name=$res_cus->client_name.' - '.$res_cus->cust_name; 
+					?>
+              <input type="text" id="cust_id" name="cust_id" class="form-control parsley-validated" tabindex="1" value="<?php echo $cust_name;?>" readonly="readonly" >
+               
+            </div>
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">&nbsp;</label>
+              Division Name
+              </label>
+              <select id="cust_div" name="cust_div" class="form-control parsley-validated chosen-select"  tabindex="2" readonly="readonly">
+                <option value="NIL">NIL</option>
+              </select>
+            </div>
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">*</label>
+              Point ID
+              </label>
+              <input type="text" id="shop_id1" name="shop_id1" class="form-control parsley-validated" value="<?php  echo $id;?>" placeholder="Customer Name" tabindex="3" readonly>
+            </div>
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">*</label>
+              Point State Name
+              </label>
+               <?php
+                     // $sqls2 = mysqli_query($readConnection,"SELECT DISTINCT(a.state) FROM location_master AS a INNER JOIN radiant_location AS b ON a.loc_id=b.location_id
+ // WHERE b.region_id IN (".$login_regoin.") AND a.`status`='Y' AND b.`status`='Y'  GROUP BY state");
+                    // $res2 = mysqli_fetch_object($sqls2);
+                        // if($state==$res2->state) 
+							// ?>
+                        <input type="text" id="state" name="state" class="form-control parsley-validated" tabindex="4" value="<?php echo $res_shop->state;?>" readonly="readonly"> 
+                     
+                  
+            </div>
+            <div class="clear"></div>
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">*</label>
+              Point PinCode
+              </label>
+              <input type="text" id="pincode" name="pincode" class="form-control parsley-validated"  placeholder="Point PinCode" value="<?php echo $res_shop->pincode; ?>" tabindex="6" readonly="readonly">
+            </div>
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">*</label>
+              Point Location
+              </label>
+			  <?php 
+			  $sqls1 = mysqli_query($readConnection,"SELECT b.loc_id, b.location, reg.region_name FROM radiant_location AS a JOIN location_master AS b ON a.location_id=b.loc_id INNER JOIN region_master as reg ON reg.region_id = a.region_id WHERE b.loc_id=".$res_shop->location." AND a.status='Y' AND b.status='Y'  ORDER BY b.location ");
+				$ress1 = mysqli_fetch_object($sqls1);
+				 //IF($ress1->location_id == $res_shop->location) 
 				
-            </div> <!-- /.portlet-body -->
+				?>
+              <input type="text" id="location" name="location" class="form-control parsley-validated" value="<?php echo $ress1->location."-".$ress1->region_name;?>" tabindex="6" readonly="readonly">
+                
+            </div>
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">*</label>
+              Radiant LOI ID
+              </label>
+              <input type="text" id="loi_id" name="loi_id" class="form-control parsley-validated"  placeholder="Radiant LOI ID" value="<?php echo $res_shop->loi_id; ?>" tabindex="7" readonly="readonly">
+            </div>
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">&nbsp;*</label>
+              LOI Date
+              </label>
+              <input  type="text"  autocomplete = "off"  name="loi_date" class="form-control parsley-validated"  placeholder="LOI Date" value="<?php if($res_shop->loi_date!='0000-00-00' && $res_shop->loi_date!='') {  echo date('d-m-Y', strtotime($res_shop->loi_date)); } ?>" tabindex="8" readonly="readonly">
+            </div>
+            <div class="clear"></div>
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">*</label>
+              Customer Code
+              </label>
+              <textarea class="form-control parsley-validated" rows="2" cols="10" id="cust_code" name="cust_code" tabindex="9" placeholder="Customer Code" readonly="readonly"><?php echo $res_shop->customer_code; ?></textarea>
+             
+            </div>
             
-            <div id="basicModal" class="modal fade">
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">*</label>
+              Customer&acute;s Point Code
+              </label>
+              <textarea class="form-control parsley-validated" rows="2" cols="10" id="shop_code" name="shop_code" tabindex="10" placeholder="Customer&acute;s Point Code" readonly="readonly" ><?php echo $res_shop->shop_code; ?></textarea>
+              
+              <span class="load_errorsss" style="color:red; display:none;">Please enter at least 10 characters.</span>
+              
+            </div>
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">*</label>
+              Point Location Code
+              </label>
+              <textarea class="form-control parsley-validated" rows="2" cols="10" id="loc_code" name="loc_code" tabindex="11" placeholder="Point Location Code" readonly="readonly"><?php echo $res_shop->loc_code; ?></textarea>
+            </div>
+            <div class="form-group col-sm-3">
+              <label for="name">
+                <label class="compulsory">*</label>
+              Point Name
+              </label>
+               <textarea class="form-control parsley-validated" rows="2" cols="10" id="shop_name" name="shop_name" tabindex="12" placeholder="Point Name" readonly="readonly"><?php echo $res_shop->shop_name; ?></textarea>
+             
+            </div>
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">*</label>
+              Point Address
+              </label>
+              <textarea class="form-control parsley-validated" rows="2" cols="10" id="address" name="address" tabindex="13" placeholder="Point Address" readonly="readonly"><?php echo $res_shop->address; ?></textarea>
+            </div>
+            
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">&nbsp;</label>
+              Hierarchy Code
+              </label>
+              <input type="text" id="hier_code" name="hier_code" class="form-control parsley-validated"  placeholder="Hierarchy Code" value="<?php echo $res_shop->hierarchy_code; ?>" tabindex="14" readonly="readonly">
+            </div>
+            
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">&nbsp;</label>
+              Sub Customer Code
+              </label>
+              <input type="text" id="subcust_code" name="subcust_code" class="form-control parsley-validated"  placeholder="Sub Customer Code" value="<?php echo $res_shop->subcustomer_code; ?>" tabindex="15" readonly="readonly">
+            </div>
+            
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">&nbsp;</label>
+              Sol ID
+              </label>
+              <input type="text" id="sol_id" name="sol_id" class="form-control parsley-validated"  placeholder="Sol ID" value="<?php echo $res_shop->sol_id; ?>" tabindex="16" readonly="readonly">
+            </div>
+            <div class="clear"></div>
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">&nbsp;</label>
+              Division Code
+              </label>
+              <input type="text" id="div_code" name="div_code" class="form-control parsley-validated"  placeholder="Division Code" value="<?php echo $res_shop->div_code; ?>" tabindex="17" readonly="readonly">
+            </div>
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">*</label>
+              Point Phone No
+              </label>
+              <input type="text" id="phone" name="phone" class="form-control parsley-validated"  placeholder="Point Phone No" value="<?php echo $res_shop->phone; ?>" tabindex="18" readonly="readonly">
+            </div>
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">*</label>
+              Contact Name
+              </label>
+              <input type="text" id="contact_name" name="contact_name" class="form-control parsley-validated"  placeholder="Contact Name" value="<?php echo $res_shop->contact_name; ?>" tabindex="19" readonly="readonly">
+            </div>
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">*</label>
+              Contact Mobile No
+              </label>
+              <input type="text" id="contact_no" name="contact_no" class="form-control parsley-validated"  placeholder="Contact Mobile No" value="<?php echo $res_shop->contact_no; ?>" tabindex="20" readonly="readonly">
+            </div>
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">&nbsp;</label>
+              Email ID
+              </label>
+              <input type="text" id="email_id" name="email_id" class="form-control parsley-validated"  placeholder="Email ID" value="<?php echo $res_shop->email_id; ?>" tabindex="21" readonly="readonly">
+            </div>
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">*</label>
+              Service Type
+              </label>
+              <input type="text" id="service_type" name="service_type" class="form-control parsley-validated" value="<?php echo $res_shop->service_type;?>"  tabindex="22" readonly="readonly">
+              <br />
+               <div id="mbc_types" style=" <?php if($res_shop->service_type!="MBC") { echo 'display:none;'; } ?>">
+               <label class="compulsory">&nbsp;</label>
+              Cash
+             
+              </label>
+              <input type="checkbox" data-mincheck="2" name="mbc_type" <?php if($res_shop->mbc_type=='1') { echo 'checked'; } ?> class="parsley-validated" value="1" tabindex="22">
+              <label class="compulsory">&nbsp;</label>
+              Cheque
+              </label>
+              <input type="checkbox" data-mincheck="2" name="mbc_type" class="parsley-validated"  <?php if($res_shop->mbc_type=='2') { echo 'checked'; } ?> value="2" tabindex="22">
+              <label class="compulsory">&nbsp;</label>
+              Attendance
+              </label>
+              <input type="checkbox" data-mincheck="2" name="mbc_type" class="parsley-validated"  <?php if($res_shop->mbc_type=='3') { echo 'checked'; } ?> value="3" tabindex="22">
+              </div>
+            </div>
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">*</label>
+              Process
+              </label>
+              <input type="text" id="process" name="process" class="form-control parsley-validated"  placeholder="Process" value="<?php echo $res_shop->process; ?>" tabindex="22" readonly="readonly">
+            </div>
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">*</label>
+              Cash Max. Limit
+              </label>
+              <input type="text" id="cash_limit" name="cash_limit" class="form-control parsley-validated"  placeholder="Cash Max. Limit" value="<?php echo $res_shop->cash_limit; ?>" tabindex="22" readonly="readonly">
+            </div>
+            <div class="clear"></div>
+             
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">*</label>
+              Deposit Bank Type
+              </label>
+              <input type="text" id="bank_type" name="bank_type" class="form-control parsley-validated" value="<?php echo $res_shop->dep_bank;?>"  tabindex="23" readonly="readonly">
+            </div>
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">&nbsp;</label>
+              Account No.
+              </label>
+              <input type="text" id="account_no" name="account_no" class="form-control parsley-validated"  placeholder="Account No." value="<?php echo $res_shop->acc_id; ?>" tabindex="25" readonly="readonly">
+            </div>
+            
+           
+           
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">*</label>
+              Pickup Type
+              </label>
+              <input type="text" id="pickup_type" name="pickup_type" class="form-control parsley-validated" value="<?php echo $res_shop->pickup_type;?>"  tabindex="27" readonly="readonly">
+                
+            </div>
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">*</label>
+              Feasibility Check
+              </label>
+              
+              <input type="text" id="feasibility" name="feasibility" class="form-control parsley-validated" value="<?php echo $res_shop->feasibility;?>"  tabindex="28" readonly="readonly">
+            </div>
+            <div class="clear"></div>
 
-        <div class="modal-dialog">
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">*</label>
+              Point Type
+              </label>
+              <input type="text" id="point_type" name="point_type" class="form-control parsley-validated" value="<?php echo $res_shop->point_type;?>" tabindex="29" readonly="readonly">
+             
+            </div>
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">&nbsp;</label>
+              Remarks
+              </label>
+              <textarea class="form-control parsley-validated" rows="2" cols="10" id="remarks" placeholder="Remarks" name="remarks"  tabindex="30" readonly="readonly"><?php echo $res_shop->remarks; ?></textarea>
+            </div>
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">&nbsp;</label>
+              Point Activation Date
+              </label>
+              <input readonly="readonly" type="text"  name="sact_date" class="form-control parsley-validated"  placeholder="Point Activation Date" value="<?php if($res_shop->sact_date!='0000-00-00' && $res_shop->sact_date!='') { echo date('d-m-Y', strtotime($res_shop->sact_date)); } ?>" tabindex="31" readonly="readonly">
+            </div>
+            <div class="form-group col-sm-3">
+              <label for="name">
+              <label class="compulsory">&nbsp;</label>
+              Point Deactivation Date
+              </label>
+              <input readonly="readonly" type="text" name="sdeact_date" class="form-control parsley-validated"  placeholder="Point Deactivation Date" value="<?php if($res_shop->sdeact_date!='0000-00-00' && $res_shop->sdeact_date!='') { echo date('d-m-Y', strtotime($res_shop->sdeact_date)); } ?>" tabindex="32" readonly="readonly">
+            </div>
+            <div class="clear"></div>
 
-          <div class="modal-content">
-
-            <div   id="basicModal_view"></div>
-           <div class="modal-footer">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary" id="save_loa"  data-dismiss="modal">Select Head Name</button>
-            </div> <!-- /.modal-footer -->
-
-          </div> <!-- /.modal-content -->
-
-        </div><!-- /.modal-dialog -->
-
+            <div class="clear"></div>
+           
+          </div>
+        </form>
       </div>
-            <div class="clear"></div>
-            <div class="portlet">
-            	<h3 class="portlet-title">
-	              <u>Customize Search</u>
-	            </h3>
-	            
-	             <div align="center" style="padding: 7px; display: none;" class="alert alert-success message_cu del_msg">
-            	<a aria-hidden="true" href="components-popups.html#" data-dismiss="alert" class="close">×</a>
-            	<b>Selected CE Point Mapping Details Deleted</b>
-            </div>
-	            
-	            <form id="demo-validation" action="#" data-validate="parsley" class="form parsley-form">
+      <!-- /.portlet-body --> 
+       <?php } ?>
+      <div class="clear"></div>
+    
+      <div class="portlet">
+        <h3 class="portlet-title"> <u>Customize Search</u> </h3>
+        <div align="center" style="padding: 7px; display: none;" class="alert alert-danger message_cu del_msg"> <a aria-hidden="true" href="components-popups.html#" data-dismiss="alert" class="close">×</a> <b>Selected Point Details Deleted</b> </div>
+        <form id="demo-validation" action="#" data-validate="parsley" class="form parsley-form">
+          <div class="form-group col-sm-2">
+              <label class="compulsory">*</label>
+            <label for="name">Search Criteria </label>
+            <select id="search" name="search" class="form-control parsley-validated chosen-select" data-required="true">
+              <option value="">Select Option</option>
+              <option value="All">All Points</option>
+              <option value="Shop ID">Point ID</option>
+              <option value="Shop Code">Point Location Code</option>
+              <option value="Shop Name">Point Name</option>
+              <option value="Point Address">Point Address</option>
+              <option value="point type">Point Type</option>
+              <option value="Customer Name">Customer Name</option>
+              <option value="Customer Code">Customer Code</option>
+              <option value="Customer Point Code">Customer Point Code</option>
+              <option value="Client Name">Client Name</option>
+              <option value="Point Location">Point Location</option>
+              <option value="Region Name">Branch Name</option>
+              <option value="unmap">Unmapped Shops</option>
+              <option value="sol id">Sol Id</option>
+              <option value="pincode">Pincode</option>
+              
+            </select>
+          </div>
+          <div class="form-group col-sm-2">
+            <label for="name">Enter Keyword</label>
+            <input type="text" id="keyword" name="keyword" class="form-control parsley-validated" data-required="true" placeholder="Enter Keyword">
+          </div>
+          <div class="form-group  col-sm-3">
+            <button type="button" class="btn btn-danger search_btn" style="margin-top: 23px;"  onclick="search_key('1', '0')">Search Points</button>
+          </div>
+        </form>
+        <div class="clear"></div>
+        <div id="view_status"></div>
+        <br />
+        <?php //include("search_field.php"); ?>
+        <div class="clear"></div>
+        <div id="view_details_indu"></div>
+      </div>
+    </div>
+    <!-- /.portlet --> 
+    
+  </div>
+  <!-- /.col --> 
+  
+</div>
+<!-- /.row -->
 
-                <div class="form-group col-sm-2">
-                  <label for="name">Search Criteria </label>
-                  <select id="search" name="search" class="form-control parsley-validated chosen-select" data-required="true">
-                  	<option value="">Select Option</option>
-                  	<option value="All">All Mapping</option>
-                    <option value="Shop ID">Point ID </option>
-                    <option value="Shop Code">Point Location Code </option>
-                    <option value="Shop Name">Point Name</option>
-                    <option value="Primary CE ID">Primary CE ID</option>
-                    <option value="Sec CE ID">Sec CE ID</option>
-                    <option value="Add CE ID">Add CE ID</option>
-                    <option value="Location Name">Location Name</option>
-                    <option value="Region Name">Branch Name</option>
-                  </select>
-               </div>
-               <div class="form-group col-sm-2">
-                  <label for="name">Enter Keyword</label>
-                  <input type="text" id="keyword" name="keyword" class="form-control parsley-validated" data-required="true" placeholder="Enter Keyword">
-               </div>
-
-				<div class="form-group  col-sm-2">
-                  <button type="button" class="btn btn-danger search_btn" style="margin-top: 23px;" onclick="search_key('1', '0')">Search Mapping</button>
-                </div>
-				</form>
-                <div class="clear"></div>
-                 <div id="view_status12"></div><br />
-				<?php //include("search_field.php"); ?>
-					<div class="clear"></div>
-				<div id="view_details_indu"></div>
-            </div>
-            
-            <div class="clear"></div>
-            <?php
-			if($per=='Admin' || $per=='Super User') {
-			?>
-            <!--<div class="portlet">
-            	<h3 class="portlet-title">
-	              <u>Map & Un Map Shop Details</u>
-	            </h3>
-                <div class="form-group col-sm-3">
-                  <label for="name">Customer Name</label>
-                  <select id="custo_id" class="form-control parsley-validated chosen-select" onchange="custo_id('1', '0')">
-                  	<option value="">Select Customer Name</option>  
-                  	<?php
-                  	 $sql_cust = mysqli_query($readConnection,"SELECT a.client_name, b.cust_id, b.cust_name FROM client_details AS a JOIN cust_details AS b ON a.client_id=b.client_id WHERE b.status='Y' AND b.status='Y' ORDER BY a.client_name, b.cust_name");
-				  while($res_cus = mysqli_fetch_object($sql_cust)) {
-								
-						echo '<option value="'.$res_cus->cust_id.'" ';						
-						if($cust==$res_cus->cust_id) { echo 'selected="selected"'; }						
-						echo '>'.$res_cus->client_name.'-'.$res_cus->cust_name.'</option>'; 
-				  }
-				  ?>                	
-                  </select>
-               </div>
-               <div class="clear"></div>
-               <?php //include("search_field1.php"); ?>
-			  <div class="clear"></div>
-               <div id="load_shop"></div>
-               <br /><br /><br /><br /><br /><br />
-            </div>-->    
-            <?php
-			}			
-			?>
-          </div> <!-- /.portlet -->
-
-        </div> <!-- /.col -->
-
-      </div> <!-- /.row -->
-
-    </div> <!-- /.container -->
-	<style type="text/css">
-		#cust_id-error,#branch-error,#location-error,#shop-error,#location1-error,#ces_1-error{
-			left: 10px;
-			top: 77px;
-			position: absolute;
-		}
-	</style>
+</div>
+<!-- /.container -->
+<style type="text/css">	#cust_id-error,#location-error,#state-error,#location-error,#service_type-error,#bank_type-error,#pickup_type-error,#feasibility-error,#point_type-error,#popupDatepicker-error{
+	  left: 10px;
+	  top: 65px;
+	  position: absolute;
+  }
+</style>
 <script type="text/javascript">
-	$(document).ready(function() {
-		$(".chosen-select").chosen({no_results_text:'Oops, nothing found!'},{disable_search_threshold: 10});
-		setTimeout(function() {
-			$('.message_cu').fadeOut('fast');
-		}, 3000);
-		$.validator.setDefaults({ ignore: ":hidden:not(select)" });
-		$("#demo-validation").validate({
-		rules:{
-			cust_id:{
-				required:true
-			},
-			branch:{
-				required:true
-			},
-			location:{
-				required:true
-			},
-			phone:{
-				required:true
-			},
-			shop:{
-				required:true
-			},
-			location1:{
-				required:true
-			},
-			primary_ce:{
-				required:true
-			}
-		},
-		messages:{
-			cust_id:{
-				required:'Select Customer Name.'
-			},
-			branch:{
-				required:'Select Branch.'
-			},
-			location:{
-				required:'Select Location.'
-			},
-			shop:{
-				required:'Select Point Name.'
-			},			
-			location1:{
-				required:'Select CE Location.'				
-			},			
-			primary_ce:{
-				required:'Select Primary CE.'				
-			}
-		}
-		});		
-		$( "body" ).on( "click", ".update_locid", function() {
 
-			ids = this.id;
-			ids1 = ids.split('_');
-			$.ajax({
-				type: "POST",
-				url: "RCE/AjaxReference/rceLoadData.php",
-				data: 'types=4&pid=rce_mapping&location1='+$('#location1').val()+'&load_type='+ids1[1],
-				success: function(msg){
-					$('#basicModal_view').html(msg);
-				}
-			});	
-			
-		});
-		$( "body" ).on( "click", ".staff_name", function() {
-			chek_lng = $('.staff_name:checkbox:checked').length;
-			if(chek_lng>1) {
-				alert('Select Only One!');
-				$(this).removeAttr('checked');
-			}
-		});
-		$( "body" ).on( "change", "#search", function() {
-			$('#keyword').val('');
-		});
-		$( "body" ).on( "click", "#save_loa", function() {
-			
-			var staff_de = "";
-			$('#basicModal_view input[type=checkbox]').each(function () {
-				 if (this.checked) {
-					staff_de+=$(this).val(); 
-				 }
-			});
-			load_type = $('#load_type').val();
-			$('#ces_'+load_type).val(staff_de);
-		});
-		
-	});
-	<?php if($state!='') { ?>
-	window.onload = function() {	
- 		branch_load();
-	};
-	 <?php } ?>
-	function branch_load() {
-		$.ajax({
-				type: "POST",
-				url: "RCE/AjaxReference/rceLoadData.php",
-				data: 'types=1&pid=rce_mapping&branch='+$('#branch').val()+'&cust_id='+$('#cust_id').val()+'&cu_location=<?php echo $location; ?>',
-				success: function(msg){
-					$('.location').html(msg);
-					$('.location').trigger("chosen:updated");
-					<?php if($shop_idss=='' && $ab!='1') {?>		
-					$('#shop').html('');
-					$('#shop').trigger("chosen:updated");
-					$('#shop_code').val('');					
-					$('#point_id').html('');
-					$('#point_type').html('');
-					$('#cust_code').html('');
-					$('#cust_point_code').html('');
-					$('#point_name').html('');
-					$('#point_address').html('');
-					$('#point_pin').html('');
-					$('#point_phone').html('');
-					$('#contact_name').html('');
-					$('#contact_mobile').html('');
-					$('#service_type').html('');
-					<?php
-					}
-					 if($location!='') { ?>	
-						location_load();	
-					<?php } ?>
-				}
-			});
-		$.ajax({
-			type: "POST",
-			url: "RCE/AjaxReference/rceLoadData.php",
-			data: 'types=9&pid=rce_mapping&branch='+$('#branch').val()+'&cu_location=<?php echo $location; ?>',
-			success: function(msg){
-				$('#location1').html(msg);
-				$('#location1').trigger("chosen:updated");					
-				
-			}
-		});
-	}
-	 function location_load() {
-		 <?php
-		 if($shop_idss!='') {
-			 $shop_id11 = $shop_idss;
-		 }
-		 else {
-			 $shop_id11 = $shop_id;
-		 }
-		 ?>
-		$.ajax({
-			type: "POST",
-			url: "RCE/AjaxReference/rceLoadData.php",
-			data: 'types=2&pid=rce_mapping&cust_id='+$('#cust_id').val()+'&location='+$('#location').val()+'&shop_id=<?php echo $shop_id11; ?>',
-			success: function(msg){
-				
-				$('#shop').html(msg);
-				$('#shop').trigger("chosen:updated");
-				<?php if($shop_idss=='' && $ab!='1') {?>		
-					$('#shop_code').val('');					
-					$('#point_id').html('');
-					$('#point_type').html('');
-					$('#cust_code').html('');
-					$('#cust_point_code').html('');
-					$('#point_name').html('');
-					$('#point_address').html('');
-					$('#point_pin').html('');
-					$('#point_phone').html('');
-					$('#contact_name').html('');
-					$('#contact_mobile').html('');
-					$('#service_type').html('');
-				<?php
-				}
-				 if($id!='' && $ab!=1) { ?>	
-					shop_load();	
-				<?php } ?>
-			}
-		});
-	}
-	<?php
-	if($shop_idss!='') {
-		?>
-		shop_load('<?php echo $shop_idss ?>');
-		<?php	
-	}
-	
-	?>
-	function shop_load (shop_id) {
-		
-		if(shop_id==1) {
-			<?php
-			if($shop_id!='') {
-				?>
-				var shop_ids = 	'<?php echo $shop_id; ?>';
-				<?php
-				
-			}else {
-				?>
-				var shop_ids = 	$('#shop').val();
-				<?php	
-			}
-			?>
-			
-			
-		}
-		else {
-			//alert(shop_id);
-			var shop_ids = shop_id;
-		}
-		
-		//alert(shop_ids);
-		/*if(shop_ids!='') {*/
-		$.ajax({
-				type: "POST",
-				url: "RCE/AjaxReference/rceLoadData.php",
-				data: 'types=3&pid=rce_mapping&shop='+shop_ids,
-				success: function(msg){
-					shop_det = msg.split('^%');
-					$('#shop_code').val(shop_det[0]);					
-					$('#point_id').html(shop_det[0]);
-					$('#point_type').html(shop_det[1]);
-					$('#cust_code').html(shop_det[2]);
-					$('#cust_point_code').html(shop_det[3]);
-					$('#point_name').html(shop_det[4]);
-					$('#point_address').html(shop_det[5]);
-					$('#point_pin').html(shop_det[6]);
-					$('#point_phone').html(shop_det[7]);
-					$('#contact_name').html(shop_det[8]);
-					$('#contact_mobile').html(shop_det[9]);
-					$('#service_type').html(shop_det[10]);
-				}
-			});
-		//}
-	}
-	
 	function search_key (search_type, page_start) {
-	  if($('#keyword').val()!='' || $('#search').val()=='All') {
+	  if($('#keyword').val()!='' || $('#search').val()=='All' || $('#search').val()=='unmap') {	  	
 			$('#keyword').removeClass('error_dispaly');
 			tbl_search = '';
 
 			$.ajax({
 				type: "POST",
-				url: "RCE/AjaxReference/rceLoadData.php",
-				data: 'pgn=1&start_limit='+page_start+'&tbl_search='+tbl_search+'&per_page='+$('#per_page').val()+'&end_limit=10&types=7&pid=rce_mapping&search='+$('#search').val()+'&keyword='+$('#keyword').val(),
+				url: "RCE/AjaxReference/rceLoadData.php",		
+				data: 'pgn=1&start_limit='+page_start+'&tbl_search='+tbl_search+'&per_page='+$('#per_page').val()+'&end_limit=10&types=4&pid=rce_point_master&search='+$('#search').val()+'&keyword='+$('#keyword').val(),
 				beforeSend: function(){				
 					$('#view_details_indu').html('<img src="img/loading.gif" alt="Radiant.">');
 				},
@@ -518,7 +430,8 @@ $ab = $_REQUEST['ab']
 					$('#view_details_indu').html(msg);
 					$('.search_field').css('display', '');
 
-					$("#to_load_rce_cemap").DataTable({ ordering: false});
+          
+          $("#to_load_rce_point_data").DataTable({ ordering: false});
 				}
 			});
 		}
@@ -527,24 +440,4 @@ $ab = $_REQUEST['ab']
 		}
 	}
 	
-	function custo_id (search_type, page_start) {
-	
-		if(search_type==1) {
-				$('#tbl_search1').val('');
-				tbl_search = '';
-			}
-			else {
-				tbl_search = $('#tbl_search1').val();
-			}
-		$.ajax({
-				type: "POST",
-				url: "RCE/AjaxReference/rceLoadData.php",
-				data: 'pgn=1&start_limit='+page_start+'&tbl_search='+tbl_search+'&per_page='+$('#per_page1').val()+'&end_limit=10&types=8&pid=rce_mapping&custo_id='+$('#custo_id').val(),
-				success: function(msg){
-					$('.search_field1').css('display', '');
-					$('#load_shop').html(msg);
-				}
-			});	
-		
-	}
 </script>
